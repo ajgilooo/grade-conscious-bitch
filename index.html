@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLE Protocol — Daily Command</title>
+    <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;PLE Protocol&quot;,&quot;short_name&quot;:&quot;PLE&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%230f0f0f&quot;,&quot;theme_color&quot;:&quot;%236c5ce7&quot;}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f0f0f">
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --card: #1a1a1a;
+            --border: #2a2a2a;
+            --text: #e0e0e0;
+            --text-dim: #888;
+            --text-bright: #fff;
+            --accent: #6c5ce7;
+            --accent-light: #a29bfe;
+            --red: #ff6b6b;
+            --orange: #ffa502;
+            --yellow: #ffd43b;
+            --green: #51cf66;
+            --blue: #339af0;
+            --purple: #b197fc;
+            --pink: #f06595;
+            --cyan: #22b8cf;
+            --t1: #ff6b6b;
+            --t2: #339af0;
+            --t3: #b197fc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+        /* TOP BAR */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .top-bar h1 {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .top-bar .date-display {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .top-bar-stats {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .mini-stat {
+            text-align: center;
+        }
+        .mini-stat-val {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .mini-stat-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+        }
+
+        /* NAV TABS */
+        .nav {
+            display: flex;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            position: sticky;
+            top: 52px;
+            z-index: 99;
+        }
+        .nav-item {
+            padding: 10px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dim);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .nav-item:hover { color: var(--text); }
+        .nav-item.active {
+            color: var(--accent-light);
+            border-bottom-color: var(--accent);
+        }
+
+        /* CONTAINER */
+        .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+        /* TAB CONTENT */
+        .tab { display: none; }
+        .tab.active { display: block; }
+
+        /* DAILY CHECKLIST */
+        .today-header {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .today-header h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-bright);
+        }
+        .today-header .today-sub {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+        .today-header .today-rotation {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(108,92,231,0.15);
+            color: var(--accent-light);
+            border: 1px solid rgba(108,92,231,0.3);
+        }
+
+        /* LEVEL SELECTOR */
+        .level-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .level-btn {
+            padding: 12px 8px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .level-btn:hover { border-color: #444; }
+        .level-btn.selected { border-color: var(--accent); background: rgba(108,92,231,0.1); }
+        .level-btn .level-name { font-size: 14px; font-weight: 700; }
+        .level-btn .level-time { font-size: 10px; color: var(--text-dim); }
+        .level-btn .level-desc { font-size: 9px; color: var(--text-dim); margin-top: 2px; }
+
+        /* CHECKLIST SECTIONS */
+        .checklist-section {
+            margin-bottom: 16px;
+        }
+        .checklist-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 8px 8px 0 0;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .checklist-header.t0 { background: rgba(255,255,255,0.05); color: var(--text-dim); }
+        .checklist-header.t1 { background: rgba(255,107,107,0.1); color: var(--t1); }
+        .checklist-header.t2 { background: rgba(51,154,240,0.1); color: var(--t2); }
+        .checklist-header.t3 { background: rgba(177,151,252,0.1); color: var(--t3); }
+
+        .checklist-body {
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .check-item:last-child { border-bottom: none; }
+        .check-item:hover { background: rgba(255,255,255,0.02); }
+        .check-item.done { opacity: 0.5; }
+        .check-item.done .check-text { text-decoration: line-through; }
+
+        .check-box {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid #444;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .check-box:checked {
+            background: var(--green);
+            border-color: var(--green);
+        }
+        .check-box:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .check-content { flex: 1; }
+        .check-text { font-size: 13px; font-weight: 500; }
+        .check-detail { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+        .check-resources { margin-top: 3px; }
+
+        .resource-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 600;
+            margin: 1px 1px;
+            border: 1px solid;
+        }
+        .tag-mehlman { background: rgba(255,107,107,0.1); color: #ff6b6b; border-color: rgba(255,107,107,0.3); }
+        .tag-topnotch { background: rgba(51,154,240,0.1); color: #339af0; border-color: rgba(51,154,240,0.3); }
+        .tag-bnb { background: rgba(81,207,102,0.1); color: #51cf66; border-color: rgba(81,207,102,0.3); }
+        .tag-ome { background: rgba(34,184,207,0.1); color: #22b8cf; border-color: rgba(34,184,207,0.3); }
+        .tag-sketchy { background: rgba(255,165,2,0.1); color: #ffa502; border-color: rgba(255,165,2,0.3); }
+        .tag-pixorize { background: rgba(240,101,149,0.1); color: #f06595; border-color: rgba(240,101,149,0.3); }
+        .tag-anking { background: rgba(177,151,252,0.1); color: #b197fc; border-color: rgba(177,151,252,0.3); }
+        .tag-trans { background: rgba(255,212,59,0.1); color: #ffd43b; border-color: rgba(255,212,59,0.3); }
+        .tag-recalled { background: rgba(255,255,255,0.05); color: #aaa; border-color: rgba(255,255,255,0.15); }
+        .tag-superexam { background: rgba(51,154,240,0.15); color: #74b9ff; border-color: rgba(51,154,240,0.4); }
+        .tag-fa { background: rgba(253,203,110,0.1); color: #fdcb6e; border-color: rgba(253,203,110,0.3); }
+
+        /* PROGRESS RING */
+        .progress-ring-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 16px 0;
+        }
+        .ring-wrapper {
+            text-align: center;
+        }
+        .ring-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        /* DAILY NOTES */
+        .daily-notes {
+            margin-top: 16px;
+        }
+        .daily-notes textarea {
+            width: 100%;
+            min-height: 80px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 12px;
+            resize: vertical;
+        }
+        .daily-notes textarea::placeholder { color: #555; }
+        .daily-notes textarea:focus { outline: none; border-color: var(--accent); }
+
+        /* QUICK INPUT ROW */
+        .quick-input-row {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .quick-input {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .quick-input label {
+            font-size: 9px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .quick-input input {
+            width: 100%;
+            padding: 8px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-bright);
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .quick-input input:focus { outline: none; border-color: var(--accent); }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        /* WEEK INDICATOR */
+        .week-indicator {
+            display: flex;
+            gap: 3px;
+            margin: 12px 0;
+        }
+        .week-day {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border);
+            transition: background 0.3s;
+        }
+        .week-day.done { background: var(--green); }
+        .week-day.today { background: var(--accent); box-shadow: 0 0 8px rgba(108,92,231,0.5); }
+
+        /* SCHEDULE DATA */
+        .schedule-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 8px;
+        }
+        .schedule-card h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-bright);
+            margin-bottom: 6px;
+        }
+        .schedule-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 11px;
+        }
+        .tier-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ALERT */
+        .alert {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin: 10px 0;
+            display: flex;
+            align-items: start;
+            gap: 8px;
+        }
+        .alert-icon { font-size: 14px; flex-shrink: 0; }
+        .alert-warning { background: rgba(255,165,2,0.08); border: 1px solid rgba(255,165,2,0.15); }
+        .alert-success { background: rgba(81,207,102,0.08); border: 1px solid rgba(81,207,102,0.15); }
+        .alert-info { background: rgba(51,154,240,0.08); border: 1px solid rgba(51,154,240,0.15); }
+
+        /* HISTORY */
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            margin: 12px 0;
+        }
+        .history-cell {
+            aspect-ratio: 1;
+            border-radius: 3px;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            color: var(--text-dim);
+            cursor: pointer;
+        }
+        .history-cell.l1 { background: rgba(255,255,255,0.08); }
+        .history-cell.l2 { background: rgba(51,154,240,0.2); }
+        .history-cell.l3 { background: rgba(81,207,102,0.25); }
+        .history-cell.l4 { background: rgba(108,92,231,0.35); }
+        .history-cell.today-cell { box-shadow: 0 0 0 2px var(--accent); }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .level-selector { grid-template-columns: repeat(2, 1fr); }
+            .top-bar { flex-direction: column; gap: 6px; padding: 8px 12px; }
+            .top-bar-stats { gap: 12px; }
+            .quick-input-row { flex-wrap: wrap; }
+            .container { padding: 10px; }
+        }
+
+        /* SUBJECT DETAIL IN SCHEDULE */
+        .subj-detail-toggle {
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.03);
+            margin-top: 6px;
+            font-size: 10px;
+            color: var(--text-dim);
+            transition: background 0.2s;
+        }
+        .subj-detail-toggle:hover { background: rgba(255,255,255,0.06); }
+        .subj-detail-content { display: none; padding: 8px; font-size: 11px; }
+        .subj-detail-content.open { display: block; }
+
+        /* BUTTON */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: #5b4bd5; }
+        .btn-ghost { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
+        .btn-ghost:hover { border-color: #555; color: var(--text); }
+        .btn-sm { padding: 4px 10px; font-size: 10px; }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+    <div class="top-bar-left">
+        <h1>PLE TOP 1</h1>
+        <span class="date-display" id="dateDisplay"></span>
+    </div>
+    <div class="top-bar-stats">
+        <div class="mini-stat">
+            <div class="mini-stat-val" style="color:var(--orange);" id="streakVal">0</div>
+            <div class="mini-stat-label">🔥 Streak</div>
+        </div>
+        <div class="mini-stat">
+            <div class="mini-stat-val" style="color:var(--blue);" id="daysVal">—</div>
+            <div class="mini-stat-label">Days to PLE</div>
+        </div>
+        <div class="mini-stat">
+            <div class="mini-stat-val" style="color:var(--green);" id="todayPct">0%</div>
+            <div class="mini-stat-label">Today</div>
+        </div>
+    </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+    <div class="nav-item active" onclick="showTab('today')">📋 Today</div>
+    <div class="nav-item" onclick="showTab('week')">📅 This Week</div>
+    <div class="nav-item" onclick="showTab('subjects')">📚 Subjects</div>
+    <div class="nav-item" onclick="showTab('checkpoints')">🧪 Checkpoints</div>
+    <div class="nav-item" onclick="showTab('resources')">📦 Resources</div>
+    <div class="nav-item" onclick="showTab('history')">📊 History</div>
+</div>
+
+<div class="container">
+
+<!-- ========== TAB: TODAY ========== -->
+<div class="tab active" id="tab-today">
+
+    <div class="today-header">
+        <h2 id="todayTitle">TODAY</h2>
+        <div class="today-sub" id="todaySub"></div>
+        <div class="today-rotation" id="todayRotation"></div>
+    </div>
+
+    <!-- LEVEL SELECTOR -->
+    <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Choose today's level:</div>
+    <div class="level-selector">
+        <div class="level-btn" onclick="selectLevel(1, this)">
+            <div class="level-name">L1</div>
+            <div class="level-time">30 min</div>
+            <div class="level-desc">Anki only</div>
+        </div>
+        <div class="level-btn" onclick="selectLevel(2, this)">
+            <div class="level-name">L2</div>
+            <div class="level-time">2 hrs</div>
+            <div class="level-desc">Anki + T1 + T2</div>
+        </div>
+        <div class="level-btn" onclick="selectLevel(3, this)">
+            <div class="level-name">L3</div>
+            <div class="level-time">3 hrs</div>
+            <div class="level-desc">Anki + T1 + T2 + T3</div>
+        </div>
+        <div class="level-btn" onclick="selectLevel(4, this)">
+            <div class="level-name">L4</div>
+            <div class="level-time">4.5 hrs</div>
+            <div class="level-desc">All tiers ×2</div>
+        </div>
+    </div>
+
+    <!-- WEEK DOTS -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <span style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">This week:</span>
+        <div class="week-indicator" id="weekDots"></div>
+        <span style="font-size:11px;font-weight:700;color:var(--text-dim);" id="weekScore"></span>
+    </div>
+
+    <!-- DAILY CHECKLIST: NON-NEGOTIABLE -->
+    <div class="checklist-section">
+        <div class="checklist-header t0">
+            🔒 Non-Negotiable (every single day)
+            <span id="nnProgress">0/3</span>
+        </div>
+        <div class="checklist-body">
+            <label class="check-item" id="ci-anki-review">
+                <input type="checkbox" class="check-box" onchange="updateDaily()">
+                <div class="check-content">
+                    <div class="check-text">Anki Reviews (all due cards)</div>
+                    <div class="check-detail">Before phone scrolling. Even on L1 days. THE habit.</div>
+                </div>
+            </label>
+            <label class="check-item" id="ci-anki-new">
+                <input type="checkbox" class="check-box" onchange="updateDaily()">
+                <div class="check-content">
+                    <div class="check-text">Anki New Cards (20)</div>
+                    <div class="check-detail">Unsuspend from AnKing OR create custom from today's study</div>
+                    <div class="check-resources">
+                        <span class="resource-tag tag-anking">💜 AnKing</span>
+                    </div>
+                </div>
+            </label>
+            <label class="check-item" id="ci-log">
+                <input type="checkbox" class="check-box" onchange="updateDaily()">
+                <div class="check-content">
+                    <div class="check-text">Daily Log Entry (Notion, 3 min)</div>
+                    <div class="check-detail">Level + Anki stats + what you studied + case (if any)</div>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <!-- TIER 1 -->
+    <div class="checklist-section">
+        <div class="checklist-header t1">
+            🔴 Tier 1 — Current Rotation
+            <span id="t1Progress">0/2</span>
+        </div>
+        <div class="checklist-body">
+            <label class="check-item" id="ci-t1-study">
+                <input type="checkbox" class="check-box" onchange="updateDaily()">
+                <div class="check-content">
+                    <div class="check-text" id="t1-study-text">Study Block: [rotation subject]</div>
+                    <div class="check-detail" id="t1-study-detail">45 min — endorsement Qs or transcription review</div>
+                    <div class="check-resources" id="t1-resources">
+                        <span class="resource-tag tag-trans">📄 Endorsed Qs</span>
+                        <span class="resource-tag tag-trans">📄 Transcription</span>
+                    </div>
+                </div>
+            </label>
+            <label class="check-item" id="ci-t1-case">
+                <input type="checkbox" class="check-box" onchange="updateDaily()">
+                <div class="check-content">
+                    <div class="check-text">Log 1 Case (Case Vault)</div>
+                    <div class="check-detail">Patient + Diagnosis + Learning Point + Basic Science Bridge</div>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <!-- TIER 2 -->
+    <div class="checklist-section">
+        <div class="checklist-header t2">
+            🔵 Tier 2 — Clinical Drip (15-20 min)
+            <span id="t2Progress">0/1</span>
+        </div>
+        <div class="checklist-body">
+            <label class="check-item" id="ci-t2-drip">
+                <input type="checkbox" class="check-box" onchange="updateDaily()">
+                <div class="check-content">
+                    <div class="check-text" id="t2-drip-text">Clinical Drip: [subject]</div>
+                    <div class="check-detail" id="t2-drip-detail">Read 3-4 trans pages OR do 10 endorsed Qs</div>
+                    <div class="check-resources" id="t2-resources">
+                        <span class="resource-tag tag-trans">📄 Trans</span>
+                        <span class="resource-tag tag-trans">📄 Endorsed Qs</span>
+                    </div>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <!-- TIER 3 -->
+    <div class="checklist-section">
+        <div class="checklist-header t3">
+            🟣 Tier 3 — Basic Science (45 min evening block)
+            <span id="t3Progress">0/1</span>
+        </div>
+        <div class="checklist-body">
+            <label class="check-item" id="ci-t3-block">
+                <input type="checkbox" class="check-box" onchange="updateDaily()">
+                <div class="check-content">
+                    <div class="check-text" id="t3-block-text">Evening Block: [basic science subject]</div>
+                    <div class="check-detail" id="t3-block-detail">Questions first → study mistakes → Anki cards</div>
+                    <div class="check-resources" id="t3-resources"></div>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <!-- QUICK INPUTS -->
+    <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin:16px 0 6px;text-transform:uppercase;letter-spacing:1px;">Quick Stats</div>
+    <div class="quick-input-row">
+        <div class="quick-input">
+            <label>Anki Reviews</label>
+            <input type="number" id="ankiReviews" placeholder="0" onchange="saveQuickStat(this)">
+        </div>
+        <div class="quick-input">
+            <label>Anki New</label>
+            <input type="number" id="ankiNew" placeholder="0" onchange="saveQuickStat(this)">
+        </div>
+        <div class="quick-input">
+            <label>Anki %</label>
+            <input type="number" id="ankiPercent" placeholder="90" onchange="saveQuickStat(this)">
+        </div>
+        <div class="quick-input">
+            <label>Study Blocks</label>
+            <input type="number" id="studyBlocks" placeholder="0" onchange="saveQuickStat(this)">
+        </div>
+        <div class="quick-input">
+            <label>Sleep (hrs)</label>
+            <input type="number" id="sleepHrs" placeholder="7" step="0.5" onchange="saveQuickStat(this)">
+        </div>
+    </div>
+
+    <!-- EXERCISE -->
+    <div style="display:flex;gap:6px;margin:8px 0;">
+        <span style="font-size:10px;color:var(--text-dim);padding:6px 0;">Exercise:</span>
+        <button class="btn btn-ghost btn-sm exercise-btn" onclick="toggleExercise(this,'Run')">🏃 Run</button>
+        <button class="btn btn-ghost btn-sm exercise-btn" onclick="toggleExercise(this,'Gym')">🏋️ Gym</button>
+        <button class="btn btn-ghost btn-sm exercise-btn" onclick="toggleExercise(this,'Rest')">😴 Rest</button>
+    </div>
+
+    <!-- DAILY NOTES -->
+    <div class="daily-notes">
+        <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Notes / Brain Dump</div>
+        <textarea id="dailyNotes" placeholder="Case seen today... Thing I got wrong... Concept to review... Tomorrow's plan..." onchange="saveDailyNotes()"></textarea>
+    </div>
+
+    <!-- END OF DAY -->
+    <div style="text-align:center;margin:20px 0;">
+        <button class="btn btn-primary" onclick="completeDay()" id="completeDayBtn">
+            ✅ Complete Day & Log Streak
+        </button>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:6px;">
+            This saves today's data and increments your streak (if Anki reviews done)
+        </div>
+    </div>
+</div>
+
+<!-- ========== TAB: THIS WEEK ========== -->
+<div class="tab" id="tab-week">
+    <div style="text-align:center;padding:20px;">
+        <h2 style="font-size:20px;font-weight:800;margin-bottom:4px;" id="weekTitle">CURRENT WEEK</h2>
+        <div style="font-size:12px;color:var(--text-dim);" id="weekSubtitle"></div>
+    </div>
+
+    <div id="weekSchedule"></div>
+
+    <div class="alert alert-info" style="margin-top:12px;">
+        <span class="alert-icon">💡</span>
+        <div>
+            <strong>The Three-Tier Rule:</strong> On a busy day, if you can only do ONE thing beyond Anki → do T1 (rotation). If you have more time → add T2 (drip). If you have evening free → add T3 (basic science). Never skip Anki reviews.
+        </div>
+    </div>
+</div>
+
+<!-- ========== TAB: SUBJECTS ========== -->
+<div class="tab" id="tab-subjects">
+    <div style="padding:16px 0 8px;">
+        <h2 style="font-size:18px;font-weight:800;">📚 Subject Progress</h2>
+        <div style="font-size:11px;color:var(--text-dim);">Track your first pass through all 6 basic science subjects</div>
+    </div>
+    <div id="subjectsList"></div>
+</div>
+
+<!-- ========== TAB: CHECKPOINTS ========== -->
+<div class="tab" id="tab-checkpoints">
+    <div style="padding:16px 0 8px;">
+        <h2 style="font-size:18px;font-weight:800;">🧪 Checkpoints & Scores</h2>
+    </div>
+    <div id="checkpointsList"></div>
+</div>
+
+<!-- ========== TAB: RESOURCES ========== -->
+<div class="tab" id="tab-resources">
+    <div style="padding:16px 0 8px;">
+        <h2 style="font-size:18px;font-weight:800;">📦 Resource Quick Reference</h2>
+        <div style="font-size:11px;color:var(--text-dim);">What to use, when, for what. Don't get lost.</div>
+    </div>
+
+    <div class="alert alert-warning">
+        <span class="alert-icon">🚨</span>
+        <div><strong>RULE:</strong> ONE primary resource per session. Don't open 5 things. Questions first → study mistakes in ONE resource → make Anki cards. Done.</div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--red);">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">🔴 Mehlman PDFs</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Ultra-condensed rapid review. NEVER read first — always AFTER watching videos/reading First Aid.</div>
+        <div style="font-size:10px;">
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Biochem/Arrows Biochem</strong> → After BnB Biochem, as rapid review before C2</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Micro</strong> → After First Aid Micro reading, quick bug summary</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Anatomy / HY Neuroanatomy</strong> → After BnB Anatomy, reinforce neuro + extremities</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Biostats</strong> → During PrevMed study, excellent epi/biostats</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Pharm / Arrows Pharm</strong> → After Sketchy/BnB Pharm, rapid drug review</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>Medical Ethics</strong> → During Legal Med study, bioethics supplement</div>
+            <div style="padding:3px 0;"><strong>HY IM/Surg/Pedia/OB</strong> → Save for internship deep dives + dedicated review</div>
+        </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--blue);">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">📘 Topnotch (Books + SuperExams)</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">THE Philippine PLE standard. Critical for PH-specific content.</div>
+        <div style="font-size:10px;">
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--red);">🔴 CRITICAL:</strong> TN Legal Medicine (your ONLY source, read cover to cover)</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--red);">🔴 CRITICAL:</strong> TN Preventive Med (DOH programs, EPI, PH laws)</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--red);">🔴 CRITICAL:</strong> TN Parasitology (PH-endemic parasites)</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>🏆 SuperExams:</strong> Use for checkpoint tests + practice simulations. Don't burn casually.</div>
+            <div style="padding:3px 0;"><strong>TN Clinical subjects:</strong> Save for internship deep dives (Mar-May 2027)</div>
+        </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--green);">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">🎬 Videos (BnB, OME, Sketchy, Pixorize)</div>
+        <div style="font-size:10px;">
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><span class="resource-tag tag-bnb">BnB</span> PRIMARY for: Biochem, Anatomy, Physio, Path, Pharm (conceptual)</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><span class="resource-tag tag-ome">OME</span> Best for: Clinical subject overviews (Pedia, OB, IM, Surg). Also Ethics.</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><span class="resource-tag tag-sketchy">Sketchy</span> Best for: Micro (bacteria, viruses) + Pharm (drug MOA). Visual memory.</div>
+            <div style="padding:3px 0;"><span class="resource-tag tag-pixorize">Pixorize</span> Best for: Vitamins, storage diseases, some immunology. Visual complement to BnB.</div>
+        </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--yellow);">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">📄 Transes + Prior Exams (3 years)</div>
+        <div style="font-size:10px;">
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>Current rotation trans:</strong> T1 study during rotation</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>Big 4 trans (IM/Surg/Pedia/OB):</strong> T2 clinical drip, 3-4 pages/day</div>
+            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>Prior exams × 3 years:</strong> GOLD for finals. ~50% repeat. Memorize.</div>
+            <div style="padding:3px 0;"><strong>Endorsed Qs:</strong> Checkpoints F1, F2 + practice sims + comp prep</div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== TAB: HISTORY ========== -->
+<div class="tab" id="tab-history">
+    <div style="padding:16px 0 8px;">
+        <h2 style="font-size:18px;font-weight:800;">📊 Study History</h2>
+        <div style="font-size:11px;color:var(--text-dim);">Your consistency heatmap. Green = studied. Brighter = higher level.</div>
+    </div>
+    <div style="display:flex;gap:4px;margin-bottom:8px;">
+        <span style="font-size:9px;color:var(--text-dim);">Mon</span>
+        <span style="font-size:9px;color:var(--text-dim);margin-left:auto;">Sun</span>
+    </div>
+    <div class="history-grid" id="historyGrid"></div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+        <span style="font-size:9px;color:var(--text-dim);">Less</span>
+        <div style="width:12px;height:12px;border-radius:2px;background:var(--border);"></div>
+        <div style="width:12px;height:12px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>
+        <div style="width:12px;height:12px;border-radius:2px;background:rgba(51,154,240,0.2);"></div>
+        <div style="width:12px;height:12px;border-radius:2px;background:rgba(81,207,102,0.25);"></div>
+        <div style="width:12px;height:12px;border-radius:2px;background:rgba(108,92,231,0.35);"></div>
+        <span style="font-size:9px;color:var(--text-dim);">More</span>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Cumulative Stats</div>
+        <div class="quick-input-row">
+            <div class="quick-input">
+                <label>Total Study Blocks</label>
+                <div style="font-size:24px;font-weight:800;color:var(--green);" id="totalBlocks">0</div>
+            </div>
+            <div class="quick-input">
+                <label>Total Anki Cards Made</label>
+                <div style="font-size:24px;font-weight:800;color:var(--purple);" id="totalCards">0</div>
+            </div>
+            <div class="quick-input">
+                <label>Total Cases Logged</label>
+                <div style="font-size:24px;font-weight:800;color:var(--cyan);" id="totalCases">0</div>
+            </div>
+            <div class="quick-input">
+                <label>Days at L2+</label>
+                <div style="font-size:24px;font-weight:800;color:var(--blue);" id="totalL2">0</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ===================== DATA =====================
+const SCHEDULE = [
+    { week: 0, dates: 'Feb 25-28', rotation: 'Rehab', hours: '8-5 chill', t1: 'Rehab endorsement', t2: '—', t3: 'Legal Medicine', t3sub: 'Topnotch Ch.1-4', t3resources: ['topnotch','recalled'] },
+    { week: 1, dates: 'Mar 1-7', rotation: 'Ophtha', hours: '7-7 var', t1: 'Ophtha endorsement', t2: 'IM: Cardiology trans', t3: 'Legal Medicine (finish)', t3sub: 'Topnotch Ch.5-8 + Special Laws', t3resources: ['topnotch','recalled','ome'] },
+    { week: 2, dates: 'Mar 8-14', rotation: 'Ophtha', hours: '7-7 var', t1: 'Ophtha endorsement (finish)', t2: 'IM: Pulmo/GI trans', t3: 'Biochemistry pt.1', t3sub: 'BnB: Mol Bio → AAs → Carb Metab → Lipids', t3resources: ['bnb','fa','mehlman','pixorize','anking'] },
+    { week: 3, dates: 'Mar 15-21', rotation: 'ORL', hours: '7-7', t1: 'ORL endorsement', t2: 'Surgery: Trauma/Acute Abd', t3: 'Biochemistry pt.2 (finish)', t3sub: 'BnB: Lipoproteins → Urea → Vitamins → Genetics', t3resources: ['bnb','fa','mehlman','pixorize','anking'] },
+    { week: 4, dates: 'Mar 22-28', rotation: 'ORL', hours: '7-7', t1: 'ORL endorsement (finish)', t2: 'Surgery: Breast/Thyroid/GI', t3: 'Micro-Para pt.1', t3sub: 'Bacteriology: Gram+, Gram-, Spirochetes, TB', t3resources: ['sketchy','fa','mehlman','anking'] },
+    { week: 5, dates: 'Mar 29-Apr 4', rotation: '→ Pedia', hours: 'transition', t1: 'Pedia prep/orientation', t2: 'IM: Nephro/Endo trans', t3: 'Micro-Para pt.2 🇵🇭', t3sub: 'Virology, Mycology, PH PARASITOLOGY', t3resources: ['sketchy','topnotch','pixorize','anking','recalled'] },
+    { week: 6, dates: 'Apr 5-11', rotation: 'Pedia', hours: 'TBD', t1: 'Pedia: G&D, EPI, NBS', t2: '(Pedia IS the drip)', t3: 'Anatomy pt.1', t3sub: 'BnB: Cranial Nerves, Spinal Cord, Brachial Plexus', t3resources: ['bnb','fa','mehlman','anking'] },
+    { week: 7, dates: 'Apr 12-18', rotation: 'Pedia', hours: 'TBD', t1: 'Pedia: Infections, IMCI', t2: 'OB: Normal Preg/Labor + F1 check', t3: 'Anatomy pt.2 (finish)', t3sub: 'BnB: Thorax, Abdomen, H&N, Embryo, Histo', t3resources: ['bnb','fa','mehlman','anking'] },
+    { week: 8, dates: 'Apr 19-25', rotation: 'Pedia', hours: 'TBD', t1: 'Pedia: Emergencies, Nutrition', t2: 'OB: Complications/GYN', t3: 'Preventive Med pt.1', t3sub: 'Epi, Biostats (Sn/Sp/PPV/NPV, errors, bias)', t3resources: ['topnotch','mehlman','bnb','fa'] },
+    { week: 9, dates: 'Apr 26-30', rotation: 'Pedia', hours: 'TBD', t1: 'Pedia endorsement drill', t2: 'IM: Hema/ID trans', t3: 'Preventive Med pt.2 🇵🇭', t3sub: 'DOH: EPI, NTP, FP, MNCHN, PIDSR, Laws', t3resources: ['topnotch','recalled'] },
+    { week: 10, dates: 'May 1-9', rotation: 'Fam Med', hours: '50% chill', t1: 'Fam Med rotation', t2: 'Surgery: Uro/Vasc/Ortho + F2', t3: 'PrevMed finish → Pharm', t3sub: 'C5 + Pharm: BnB Autonomic→CV→Abx→CNS→Endo', t3resources: ['bnb','sketchy','fa','mehlman','anking'] },
+    { week: 11, dates: 'May 10-16', rotation: 'Fam Med', hours: 'BLITZ', t1: 'ENDORSEMENT BLITZ: IM→Surg→Pedia→OB', t2: '—', t3: 'C6 Pharm checkpoint', t3resources: ['trans','recalled','topnotch','superexam'] },
+    { week: 12, dates: 'May 17-24', rotation: 'Fam Med', hours: 'BLITZ', t1: 'BLITZ: Ophtha→ORL→Neuro→Anesth→Rehab→FM→extras', t2: '—', t3: 'Anki maintenance only', t3resources: ['trans','recalled'] },
+    { week: 13, dates: 'May 25-31', rotation: '—', hours: 'PREP', t1: 'REST (25th) → Practice Sims ×3 → Final review', t2: '—', t3: 'Anki maintenance only', t3resources: ['trans','recalled','superexam'] },
+    { week: 14, dates: 'Jun 1-7', rotation: '★ EXAMS', hours: '—', t1: '★ COMPREHENSIVE EXAM (300-500 items) Target: 85%+', t2: '—', t3: 'Anki reviews only', t3resources: [] },
+    { week: 15, dates: 'Jun 8-21', rotation: '★ EXAMS', hours: '—', t1: '★ Individual Finals (10 subjects, 1-2 day prep each)', t2: '—', t3: 'Anki reviews only', t3resources: [] }
+];
+
+const CHECKPOINTS = [
+    { date: 'Feb 28', code: 'BL', type: 'basic', name: 'Baseline (Mixed)', qs: 50, target: '—', sources: 'PLE Recalled random' },
+    { date: 'Mar 7', code: 'C1', type: 'basic', name: 'Legal Medicine', qs: 50, target: '≥70%', sources: 'PLE Recalled + TN SuperExam' },
+    { date: 'Mar 21', code: 'C2', type: 'basic', name: 'Biochemistry', qs: 50, target: '≥70%', sources: 'PLE Recalled + Mehlman + SuperExam' },
+    { date: 'Apr 4', code: 'C3', type: 'basic', name: 'Micro & Parasitology', qs: 50, target: '≥68%', sources: 'PLE Recalled + SuperExam' },
+    { date: '~Apr 13', code: 'F1', type: 'clinical', name: 'IM (25) + Surgery (25)', qs: 50, target: '≥70%', sources: 'Endorsed Qs mixed' },
+    { date: 'Apr 18', code: 'C4', type: 'basic', name: 'Anatomy & Histology', qs: 50, target: '≥72%', sources: 'PLE Recalled + Mehlman + SuperExam' },
+    { date: '~May 4', code: 'F2', type: 'clinical', name: 'Pedia (25) + OB (25)', qs: 50, target: '≥70%', sources: 'Endorsed Qs mixed' },
+    { date: 'May 4', code: 'C5', type: 'basic', name: 'Preventive Medicine', qs: 50, target: '≥68%', sources: 'PLE Recalled + SuperExam' },
+    { date: 'May 11', code: 'C6', type: 'basic', name: 'Pharmacology', qs: 50, target: '≥72%', sources: 'PLE Recalled + Mehlman + SuperExam' },
+    { date: 'May 26', code: 'S1', type: 'sim', name: 'Practice Sim #1', qs: 100, target: '≥78%', sources: 'Endorsed + Recalled + SuperExam' },
+    { date: 'May 27', code: 'S2', type: 'sim', name: 'Practice Sim #2', qs: 100, target: '≥80%', sources: 'Endorsed + Recalled + SuperExam' },
+    { date: 'May 28', code: 'S3', type: 'sim', name: 'Practice Sim #3', qs: 100, target: '≥82%', sources: 'Endorsed + Recalled + SuperExam' },
+    { date: 'Jun 1-7', code: 'CE', type: 'exam', name: '★ Comprehensive Exam', qs: '300-500', target: '≥85%', sources: 'School Exam' },
+];
+
+const SUBJECTS = [
+    { name: 'Legal Medicine', icon: '⚖️', rating: 1, window: 'Feb 26 – Mar 7', cp: 'C1', target: '≥70%', resources: ['topnotch','recalled','ome'], note: 'No AnKing. All custom Anki. PH-specific only.' },
+    { name: 'Biochemistry', icon: '🧬', rating: 2, window: 'Mar 8 – 21', cp: 'C2', target: '≥70%', resources: ['bnb','fa','mehlman','pixorize','anking','recalled','superexam'], note: 'BnB is primary. Pixorize for vitamins + storage diseases.' },
+    { name: 'Micro & Para', icon: '🦠', rating: 2, window: 'Mar 22 – Apr 4', cp: 'C3', target: '≥68%', resources: ['sketchy','fa','topnotch','mehlman','pixorize','anking','recalled','superexam'], note: '🇵🇭 ~40% is Parasitology. Topnotch Para CRITICAL. 50 custom PH cards.' },
+    { name: 'Anatomy', icon: '🦴', rating: 3, window: 'Apr 5 – 18', cp: 'C4', target: '≥72%', resources: ['bnb','fa','mehlman','anking','recalled','superexam'], note: 'Mehlman Neuroanat PDF excellent. Heavy image occlusion Anki.' },
+    { name: 'Preventive Med', icon: '🏥', rating: 3, window: 'Apr 19 – May 4', cp: 'C5', target: '≥68%', resources: ['topnotch','mehlman','bnb','recalled','superexam'], note: '🇵🇭 ~80% PH-specific. No AnKing. All custom. Mehlman HY Biostats useful.' },
+    { name: 'Pharmacology', icon: '💊', rating: 6, window: 'May 5 – 11', cp: 'C6', target: '≥72%', resources: ['sketchy','bnb','fa','mehlman','anking','recalled','superexam'], note: 'Quick 7-day pass. Deep 2nd pass Dec 2026 during internship.' },
+];
+
+const RESOURCE_MAP = {
+    mehlman: { label: '🔴 Mehlman', class: 'tag-mehlman' },
+    topnotch: { label: '📘 Topnotch', class: 'tag-topnotch' },
+    superexam: { label: '🏆 SuperExam', class: 'tag-superexam' },
+    bnb: { label: '🎬 BnB', class: 'tag-bnb' },
+    ome: { label: '🎬 OME', class: 'tag-ome' },
+    sketchy: { label: '🎬 Sketchy', class: 'tag-sketchy' },
+    pixorize: { label: '🎨 Pixorize', class: 'tag-pixorize' },
+    anking: { label: '💜 AnKing', class: 'tag-anking' },
+    fa: { label: '📙 First Aid', class: 'tag-fa' },
+    trans: { label: '📄 Trans/Endorsed', class: 'tag-trans' },
+    recalled: { label: '📝 PLE Recalled', class: 'tag-recalled' }
+};
+
+// ===================== FUNCTIONS =====================
+const today = new Date();
+const todayStr = today.toISOString().split('T')[0];
+const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function getDateKey() { return todayStr; }
+
+function showTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// DATE DISPLAY
+document.getElementById('dateDisplay').textContent = 
+    `${dayNames[today.getDay()]}, ${monthNames[today.getMonth()]} ${today.getDate()}`;
+
+// DAYS TO PLE
+const pleDate = new Date('2027-10-04');
+const daysLeft = Math.ceil((pleDate - today) / (86400000));
+document.getElementById('daysVal').textContent = daysLeft;
+
+// STREAK
+let streak = parseInt(localStorage.getItem('streak') || '0');
+document.getElementById('streakVal').textContent = streak;
+
+// TODAY'S SCHEDULE
+function getCurrentWeek() {
+    const start = new Date('2026-02-25');
+    const diffDays = Math.floor((today - start) / 86400000);
+    const weekNum = Math.floor(diffDays / 7);
+    for (let s of SCHEDULE) {
+        if (s.week === weekNum || (weekNum >= 6 && weekNum <= 7 && s.week === 6) ||
+            (weekNum >= 8 && weekNum <= 9 && s.week === 8)) return s;
+    }
+    return SCHEDULE[0];
+}
+
+function renderToday() {
+    const week = getCurrentWeek();
+    document.getElementById('todayTitle').textContent = dayNames[today.getDay()].toUpperCase();
+    document.getElementById('todaySub').textContent = `${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()} • Week ${week.week}`;
+    document.getElementById('todayRotation').textContent = `📍 ${week.rotation} (${week.hours})`;
+
+    document.getElementById('t1-study-text').textContent = `Study Block: ${week.t1}`;
+    document.getElementById('t2-drip-text').textContent = `Clinical Drip: ${week.t2}`;
+    document.getElementById('t3-block-text').textContent = `Evening Block: ${week.t3}`;
+    if (week.t3sub) {
+        document.getElementById('t3-block-detail').textContent = week.t3sub;
+    }
+
+    // Resources
+    const t3Res = document.getElementById('t3-resources');
+    t3Res.innerHTML = '';
+    if (week.t3resources) {
+        week.t3resources.forEach(r => {
+            if (RESOURCE_MAP[r]) {
+                t3Res.innerHTML += `<span class="resource-tag ${RESOURCE_MAP[r].class}">${RESOURCE_MAP[r].label}</span>`;
+            }
+        });
+    }
+
+    // Load saved state
+    loadDailyState();
+}
+
+// LEVEL SELECTOR
+function selectLevel(level, el) {
+    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    localStorage.setItem('level-' + todayStr, level);
+}
+
+// DAILY CHECKBOXES
+function updateDaily() {
+    const checks = document.querySelectorAll('#tab-today .check-box');
+    const total = checks.length;
+    let done = 0;
+    const state = {};
+    checks.forEach((cb, i) => {
+        if (cb.checked) done++;
+        state[i] = cb.checked;
+        cb.closest('.check-item').classList.toggle('done', cb.checked);
+    });
+    localStorage.setItem('checks-' + todayStr, JSON.stringify(state));
+
+    // Update progress displays
+    const nn = document.querySelectorAll('#tab-today .checklist-section');
+    nn.forEach(section => {
+        const sChecks = section.querySelectorAll('.check-box');
+        const sDone = Array.from(sChecks).filter(c => c.checked).length;
+        const prog = section.querySelector('[id$="Progress"]');
+        if (prog) prog.textContent = `${sDone}/${sChecks.length}`;
+    });
+
+    const pct = Math.round((done / total) * 100);
+    document.getElementById('todayPct').textContent = pct + '%';
+    document.getElementById('todayPct').style.color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--orange)' : 'var(--red)';
+}
+
+function loadDailyState() {
+    const saved = JSON.parse(localStorage.getItem('checks-' + todayStr) || '{}');
+    const checks = document.querySelectorAll('#tab-today .check-box');
+    checks.forEach((cb, i) => {
+        cb.checked = saved[i] || false;
+        cb.closest('.check-item').classList.toggle('done', cb.checked);
+    });
+
+    const level = localStorage.getItem('level-' + todayStr);
+    if (level) {
+        document.querySelectorAll('.level-btn')[parseInt(level) - 1]?.classList.add('selected');
+    }
+
+    // Quick stats
+    ['ankiReviews','ankiNew','ankiPercent','studyBlocks','sleepHrs'].forEach(id => {
+        const val = localStorage.getItem(id + '-' + todayStr);
+        if (val) document.getElementById(id).value = val;
+    });
+
+    const notes = localStorage.getItem('notes-' + todayStr);
+    if (notes) document.getElementById('dailyNotes').value = notes;
+
+    const exercise = localStorage.getItem('exercise-' + todayStr);
+    if (exercise) {
+        document.querySelectorAll('.exercise-btn').forEach(btn => {
+            if (btn.textContent.includes(exercise)) btn.classList.add('btn-primary');
+        });
+    }
+
+    updateDaily();
+}
+
+function saveQuickStat(el) {
+    localStorage.setItem(el.id + '-' + todayStr, el.value);
+}
+
+function saveDailyNotes() {
+    localStorage.setItem('notes-' + todayStr, document.getElementById('dailyNotes').value);
+}
+
+function toggleExercise(el, type) {
+    document.querySelectorAll('.exercise-btn').forEach(b => { b.classList.remove('btn-primary'); b.classList.add('btn-ghost'); });
+    el.classList.remove('btn-ghost');
+    el.classList.add('btn-primary');
+    localStorage.setItem('exercise-' + todayStr, type);
+}
+
+function completeDay() {
+    const ankiDone = document.querySelector('#ci-anki-review .check-box').checked;
+    if (ankiDone) {
+        const lastDay = localStorage.getItem('lastStreakDay');
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        if (lastDay === todayStr) {
+            // Already logged today
+        } else if (lastDay === yesterdayStr || !lastDay) {
+            streak++;
+        } else {
+            streak = 1; // Reset
+        }
+        localStorage.setItem('streak', streak);
+        localStorage.setItem('lastStreakDay', todayStr);
+        document.getElementById('streakVal').textContent = streak;
+    }
+
+    // Save level to history
+    const level = localStorage.getItem('level-' + todayStr) || '0';
+    const history = JSON.parse(localStorage.getItem('dayHistory') || '{}');
+    history[todayStr] = {
+        level: parseInt(level),
+        blocks: parseInt(document.getElementById('studyBlocks').value || '0'),
+        anki: parseInt(document.getElementById('ankiNew').value || '0')
+    };
+    localStorage.setItem('dayHistory', JSON.stringify(history));
+
+    document.getElementById('completeDayBtn').textContent = '✅ Day Logged!';
+    document.getElementById('completeDayBtn').style.background = 'var(--green)';
+    setTimeout(() => {
+        document.getElementById('completeDayBtn').textContent = '✅ Complete Day & Log Streak';
+        document.getElementById('completeDayBtn').style.background = '';
+    }, 2000);
+
+    renderHistory();
+    renderWeekDots();
+}
+
+// WEEK DOTS
+function renderWeekDots() {
+    const container = document.getElementById('weekDots');
+    container.innerHTML = '';
+    const history = JSON.parse(localStorage.getItem('dayHistory') || '{}');
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+
+    let doneCount = 0;
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(startOfWeek);
+        d.setDate(d.getDate() + i);
+        const ds = d.toISOString().split('T')[0];
+        const isToday = ds === todayStr;
+        const data = history[ds];
+        let cls = 'week-day';
+        if (isToday) cls += ' today';
+        else if (data && data.level >= 2) { cls += ' done'; doneCount++; }
+        container.innerHTML += `<div class="${cls}"></div>`;
+    }
+    document.getElementById('weekScore').textContent = `${doneCount}/7 at L2+`;
+}
+
+// WEEK TAB
+function renderWeekTab() {
+    const week = getCurrentWeek();
+    document.getElementById('weekTitle').textContent = `Week ${week.week} — ${week.rotation}`;
+    document.getElementById('weekSubtitle').textContent = `${week.dates} • ${week.hours}`;
+
+    const container = document.getElementById('weekSchedule');
+    container.innerHTML = '';
+
+    // T1
+    container.innerHTML += `
+        <div class="schedule-card">
+            <h3><span style="color:var(--t1);">🔴 TIER 1:</span> ${week.t1}</h3>
+            <div class="schedule-row"><div class="tier-dot" style="background:var(--t1);"></div><span>Resources:</span>
+                <span class="resource-tag tag-trans">📄 Endorsement Qs</span>
+                <span class="resource-tag tag-trans">📄 Transcription</span>
+                <span class="resource-tag tag-trans">📄 Prior Exams ×3</span>
+            </div>
+        </div>`;
+
+    // T2
+    if (week.t2 !== '—' && !week.t2.includes('IS the drip')) {
+        container.innerHTML += `
+            <div class="schedule-card">
+                <h3><span style="color:var(--t2);">🔵 TIER 2:</span> ${week.t2}</h3>
+                <div class="schedule-row"><div class="tier-dot" style="background:var(--t2);"></div><span>15-20 min/day: Read 3-4 trans pages OR do 10 endorsed Qs</span></div>
+            </div>`;
+    }
+
+    // T3
+    container.innerHTML += `
+        <div class="schedule-card">
+            <h3><span style="color:var(--t3);">🟣 TIER 3:</span> ${week.t3}</h3>
+            ${week.t3sub ? `<div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">${week.t3sub}</div>` : ''}
+            <div class="schedule-row"><div class="tier-dot" style="background:var(--t3);"></div><span>Resources:</span>
+                ${(week.t3resources||[]).map(r => RESOURCE_MAP[r] ? `<span class="resource-tag ${RESOURCE_MAP[r].class}">${RESOURCE_MAP[r].label}</span>` : '').join('')}
+            </div>
+        </div>`;
+}
+
+// SUBJECTS TAB
+function renderSubjects() {
+    const container = document.getElementById('subjectsList');
+    container.innerHTML = '';
+    SUBJECTS.forEach(s => {
+        const ratingClass = s.rating <= 3 ? 'rating-low' : s.rating <= 6 ? 'rating-med' : 'rating-high';
+        const score = localStorage.getItem('cp-score-' + s.cp) || '';
+        container.innerHTML += `
+            <div class="card" style="border-left:3px solid ${s.rating <= 3 ? 'var(--red)' : s.rating <= 6 ? 'var(--orange)' : 'var(--green)'};">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="font-size:24px;">${s.icon}</div>
+                    <div style="flex:1;">
+                        <div style="font-size:14px;font-weight:700;">${s.name}</div>
+                        <div style="font-size:10px;color:var(--text-dim);">${s.window} • Checkpoint ${s.cp}: ${s.target}</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:18px;font-weight:800;color:${s.rating <= 3 ? 'var(--red)' : 'var(--orange)'};">${s.rating}/10</div>
+                        <div style="font-size:8px;color:var(--text-dim);">SELF RATING</div>
+                    </div>
+                    ${score ? `<div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--green);">${score}</div><div style="font-size:8px;color:var(--text-dim);">CP SCORE</div></div>` : ''}
+                </div>
+                <div style="margin-top:8px;">
+                    ${s.resources.map(r => RESOURCE_MAP[r] ? `<span class="resource-tag ${RESOURCE_MAP[r].class}">${RESOURCE_MAP[r].label}</span>` : '').join('')}
+                </div>
+                <div style="font-size:10px;color:var(--text-dim);margin-top:4px;">${s.note}</div>
+            </div>`;
+    });
+}
+
+// CHECKPOINTS TAB
+function renderCheckpoints() {
+    const container = document.getElementById('checkpointsList');
+    container.innerHTML = '';
+    CHECKPOINTS.forEach(cp => {
+        const typeClass = cp.type === 'basic' ? 'type-basic' : cp.type === 'clinical' ? 'type-clinical' : cp.type === 'sim' ? 'type-sim' : 'type-exam';
+        const saved = localStorage.getItem('cp-score-' + cp.code) || '';
+        container.innerHTML += `
+            <div class="card" style="display:flex;align-items:center;gap:12px;padding:10px 14px;${cp.type === 'exam' ? 'border-left:3px solid var(--red);background:rgba(255,107,107,0.03);' : ''}">
+                <div style="min-width:60px;font-size:11px;font-weight:700;color:var(--text-dim);">${cp.date}</div>
+                <span style="padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700;text-transform:uppercase;" class="${typeClass}">${cp.code}</span>
+                <div style="flex:1;">
+                    <div style="font-size:12px;font-weight:600;">${cp.name}</div>
+                    <div style="font-size:9px;color:var(--text-dim);">${cp.qs} Qs • ${cp.sources}</div>
+                </div>
+                <div style="font-size:14px;font-weight:800;color:var(--green);min-width:50px;text-align:right;">${cp.target}</div>
+                <input type="text" value="${saved}" placeholder="__%" 
+                    onchange="localStorage.setItem('cp-score-${cp.code}',this.value)"
+                    style="width:55px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;font-weight:700;color:var(--text-bright);text-align:center;font-family:inherit;">
+            </div>`;
+    });
+}
+
+// HISTORY TAB
+function renderHistory() {
+    const grid = document.getElementById('historyGrid');
+    grid.innerHTML = '';
+    const history = JSON.parse(localStorage.getItem('dayHistory') || '{}');
+    const start = new Date('2026-02-25');
+    const end = new Date('2026-06-21');
+
+    let totalBlocks = 0, totalCards = 0, totalL2 = 0;
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const ds = d.toISOString().split('T')[0];
+        const data = history[ds];
+        let cls = 'history-cell';
+        if (ds === todayStr) cls += ' today-cell';
+        if (data) {
+            if (data.level >= 4) cls += ' l4';
+            else if (data.level >= 3) cls += ' l3';
+            else if (data.level >= 2) cls += ' l2';
+            else cls += ' l1';
+            totalBlocks += data.blocks || 0;
+            totalCards += data.anki || 0;
+            if (data.level >= 2) totalL2++;
+        }
+        const day = d.getDate();
+        grid.innerHTML += `<div class="${cls}" title="${ds}">${day}</div>`;
+    }
+
+    document.getElementById('totalBlocks').textContent = totalBlocks;
+    document.getElementById('totalCards').textContent = totalCards;
+    document.getElementById('totalL2').textContent = totalL2;
+    document.getElementById('totalCases').textContent = localStorage.getItem('totalCases') || '0';
+}
+
+// ===================== INIT =====================
+renderToday();
+renderWeekDots();
+renderWeekTab();
+renderSubjects();
+renderCheckpoints();
+renderHistory();
+</script>
+
+</body>
+</html>
