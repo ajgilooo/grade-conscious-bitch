@@ -3,1250 +3,970 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLE Protocol — Daily Command</title>
-    <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;PLE Protocol&quot;,&quot;short_name&quot;:&quot;PLE&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%230f0f0f&quot;,&quot;theme_color&quot;:&quot;%236c5ce7&quot;}">
+    <title>PLE Top 1 Protocol</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f0f0f">
+    <meta name="theme-color" content="#0a0a0f">
     <style>
         :root {
-            --bg: #0f0f0f;
-            --card: #1a1a1a;
-            --border: #2a2a2a;
-            --text: #e0e0e0;
-            --text-dim: #888;
-            --text-bright: #fff;
-            --accent: #6c5ce7;
-            --accent-light: #a29bfe;
-            --red: #ff6b6b;
-            --orange: #ffa502;
-            --yellow: #ffd43b;
-            --green: #51cf66;
-            --blue: #339af0;
-            --purple: #b197fc;
-            --pink: #f06595;
-            --cyan: #22b8cf;
-            --t1: #ff6b6b;
-            --t2: #339af0;
-            --t3: #b197fc;
+            --bg:#0a0a0f;--card:#131318;--card2:#1a1a22;--border:#252530;
+            --text:#d0d0d8;--dim:#6b6b80;--bright:#f0f0ff;
+            --accent:#7c6cf0;--accent2:#a78bfa;--accent-bg:rgba(124,108,240,.08);
+            --red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--green:#4ade80;
+            --blue:#60a5fa;--purple:#c084fc;--pink:#f472b6;--cyan:#22d3ee;
+            --t1:#f87171;--t2:#60a5fa;--t3:#c084fc;
         }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden;}
+        ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:#333;border-radius:3px;}
+        
+        /* ANIMATIONS */
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-12px);}to{opacity:1;transform:translateX(0);}}
+        @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+        @keyframes glow{0%,100%{box-shadow:0 0 5px rgba(124,108,240,.2);}50%{box-shadow:0 0 20px rgba(124,108,240,.4);}}
+        @keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+        @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+        @keyframes checkPop{0%{transform:scale(0);}50%{transform:scale(1.3);}100%{transform:scale(1);}}
+        @keyframes streakFire{0%,100%{transform:rotate(-3deg) scale(1);}50%{transform:rotate(3deg) scale(1.1);}}
+        .fade-in{animation:fadeIn .4s ease;}
+        .slide-in{animation:slideIn .3s ease;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* HERO */
+        .hero{background:linear-gradient(135deg,#0d0d1a 0%,#151528 40%,#1a1030 100%);padding:28px 24px 20px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+        .hero::before{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(124,108,240,.06) 0%,transparent 70%);animation:float 6s ease-in-out infinite;}
+        .hero::after{content:'';position:absolute;bottom:-80px;left:-80px;width:250px;height:250px;background:radial-gradient(circle,rgba(96,165,250,.04) 0%,transparent 70%);animation:float 8s ease-in-out infinite reverse;}
+        .hero h1{font-size:28px;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#fff 0%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;}
+        .hero .sub{font-size:12px;color:var(--dim);margin-top:4px;position:relative;}
+        .streak-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:24px;padding:8px 20px;margin-top:12px;position:relative;transition:all .3s;}
+        .streak-badge:hover{border-color:var(--accent);animation:glow 2s ease-in-out infinite;}
+        .streak-fire{font-size:22px;animation:streakFire 1s ease-in-out infinite;}
+        .streak-num{font-size:28px;font-weight:900;color:var(--orange);font-variant-numeric:tabular-nums;}
+        .streak-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+        .streak-btn{background:none;border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:8px;padding:4px 12px;cursor:pointer;font-size:10px;transition:all .2s;font-family:inherit;}
+        .streak-btn:hover{background:var(--accent);border-color:var(--accent);}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            min-height: 100vh;
-        }
+        /* STATS */
+        .stats{display:flex;justify-content:center;gap:32px;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--border);}
+        .stat{text-align:center;}
+        .stat-v{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
+        .stat-l{font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);margin-top:1px;}
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-
-        /* TOP BAR */
-        .top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .top-bar-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .top-bar h1 {
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: 1px;
-        }
-        .top-bar .date-display {
-            font-size: 12px;
-            color: var(--text-dim);
-        }
-        .top-bar-stats {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        .mini-stat {
-            text-align: center;
-        }
-        .mini-stat-val {
-            font-size: 18px;
-            font-weight: 800;
-        }
-        .mini-stat-label {
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-dim);
-        }
-
-        /* NAV TABS */
-        .nav {
-            display: flex;
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-            position: sticky;
-            top: 52px;
-            z-index: 99;
-        }
-        .nav-item {
-            padding: 10px 16px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-dim);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .nav-item:hover { color: var(--text); }
-        .nav-item.active {
-            color: var(--accent-light);
-            border-bottom-color: var(--accent);
-        }
+        /* NAV */
+        .nav{display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
+        .nav-i{padding:12px 16px;font-size:11px;font-weight:600;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;position:relative;}
+        .nav-i:hover{color:var(--text);}
+        .nav-i.active{color:var(--accent2);border-bottom-color:var(--accent);}
+        .nav-i.active::after{content:'';position:absolute;bottom:-1px;left:20%;right:20%;height:2px;background:var(--accent);filter:blur(4px);}
 
         /* CONTAINER */
-        .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+        .container{max-width:1000px;margin:0 auto;padding:16px;}
+        .tab{display:none;}.tab.active{display:block;animation:fadeIn .3s ease;}
 
-        /* TAB CONTENT */
-        .tab { display: none; }
-        .tab.active { display: block; }
+        /* CARDS */
+        .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;transition:all .3s;}
+        .card:hover{border-color:#353545;transform:translateY(-1px);}
+        .card2{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;}
 
-        /* DAILY CHECKLIST */
-        .today-header {
-            text-align: center;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-        .today-header h2 {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--text-bright);
-        }
-        .today-header .today-sub {
-            font-size: 13px;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
-        .today-header .today-rotation {
-            display: inline-block;
-            margin-top: 8px;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            background: rgba(108,92,231,0.15);
-            color: var(--accent-light);
-            border: 1px solid rgba(108,92,231,0.3);
-        }
+        /* RESOURCE TAGS */
+        .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;margin:1px;border:1px solid;transition:all .2s;cursor:default;}
+        .tag:hover{transform:scale(1.05);}
+        .tag-m{background:rgba(248,113,113,.08);color:var(--red);border-color:rgba(248,113,113,.2);}
+        .tag-tn{background:rgba(96,165,250,.08);color:var(--blue);border-color:rgba(96,165,250,.2);}
+        .tag-se{background:rgba(96,165,250,.12);color:#93c5fd;border-color:rgba(96,165,250,.3);}
+        .tag-bb{background:rgba(74,222,128,.08);color:var(--green);border-color:rgba(74,222,128,.2);}
+        .tag-om{background:rgba(34,211,238,.08);color:var(--cyan);border-color:rgba(34,211,238,.2);}
+        .tag-sk{background:rgba(251,146,60,.08);color:var(--orange);border-color:rgba(251,146,60,.2);}
+        .tag-px{background:rgba(244,114,182,.08);color:var(--pink);border-color:rgba(244,114,182,.2);}
+        .tag-ak{background:rgba(192,132,252,.08);color:var(--purple);border-color:rgba(192,132,252,.2);}
+        .tag-fa{background:rgba(251,191,36,.08);color:var(--yellow);border-color:rgba(251,191,36,.2);}
+        .tag-tr{background:rgba(251,191,36,.06);color:#d4a017;border-color:rgba(251,191,36,.15);}
+        .tag-rc{background:rgba(255,255,255,.03);color:#999;border-color:rgba(255,255,255,.1);}
+        .tag-bk{background:rgba(34,211,238,.06);color:#67e8f9;border-color:rgba(34,211,238,.15);}
+        .tag-mrs{background:rgba(74,222,128,.06);color:#86efac;border-color:rgba(74,222,128,.15);}
+
+        /* CHECKLIST */
+        .cl-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:10px 10px 0 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+        .cl-h0{background:rgba(255,255,255,.03);color:var(--dim);}
+        .cl-h1{background:rgba(248,113,113,.06);color:var(--t1);}
+        .cl-h2{background:rgba(96,165,250,.06);color:var(--t2);}
+        .cl-h3{background:rgba(192,132,252,.06);color:var(--t3);}
+        .cl-body{border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;}
+        .cl-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.02);transition:all .2s;cursor:pointer;}
+        .cl-item:last-child{border:none;}
+        .cl-item:hover{background:rgba(255,255,255,.015);}
+        .cl-item.done{opacity:.45;}
+        .cl-item.done .cl-text{text-decoration:line-through;}
+        .cl-box{width:22px;height:22px;border-radius:6px;border:2px solid #3a3a4a;appearance:none;-webkit-appearance:none;cursor:pointer;transition:all .2s;flex-shrink:0;position:relative;}
+        .cl-box:checked{background:var(--green);border-color:var(--green);animation:checkPop .3s ease;}
+        .cl-box:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:13px;font-weight:700;}
+        .cl-text{font-size:12px;font-weight:500;}
+        .cl-detail{font-size:10px;color:var(--dim);margin-top:1px;}
+
+        /* CALENDAR */
+        .cal-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px;}
+        .cal-nav h3{font-size:16px;font-weight:700;min-width:160px;text-align:center;}
+        .cal-btn{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:14px;transition:all .2s;font-family:inherit;}
+        .cal-btn:hover{background:var(--accent-bg);border-color:var(--accent);}
+        .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+        .cal-day-header{text-align:center;font-size:10px;font-weight:700;color:var(--dim);padding:4px;text-transform:uppercase;}
+        .cal-cell{min-height:85px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:4px;font-size:9px;transition:all .3s;position:relative;overflow:hidden;}
+        .cal-cell:hover{border-color:#404050;z-index:2;}
+        .cal-cell.today{border-color:var(--accent);box-shadow:0 0 12px rgba(124,108,240,.15);}
+        .cal-cell.past{opacity:.5;}
+        .cal-cell .cal-date{font-size:11px;font-weight:700;color:var(--dim);margin-bottom:2px;}
+        .cal-cell.today .cal-date{color:var(--accent2);}
+        .cal-cell.checkpoint .cal-date::after{content:'🧪';margin-left:3px;font-size:8px;}
+        .cal-cell.exam-day{background:rgba(248,113,113,.05);border-color:rgba(248,113,113,.3);}
+        .cal-block{padding:2px 4px;border-radius:4px;margin-bottom:2px;font-size:8px;font-weight:600;cursor:grab;transition:all .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .cal-block:active{cursor:grabbing;transform:scale(1.05);z-index:10;}
+        .cal-block.dragging{opacity:.4;}
+        .cal-block.t1-block{background:rgba(248,113,113,.12);color:var(--t1);border-left:2px solid var(--t1);}
+        .cal-block.t2-block{background:rgba(96,165,250,.12);color:var(--t2);border-left:2px solid var(--t2);}
+        .cal-block.t3-block{background:rgba(192,132,252,.12);color:var(--t3);border-left:2px solid var(--t3);}
+        .cal-block.cp-block{background:rgba(74,222,128,.12);color:var(--green);border-left:2px solid var(--green);}
+        .cal-block.exam-block{background:rgba(248,113,113,.15);color:var(--red);border-left:2px solid var(--red);font-weight:700;}
+        .cal-cell.drag-over{background:var(--accent-bg);border-color:var(--accent);border-style:dashed;}
+
+        /* INPUTS */
+        .input{width:100%;padding:8px 12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--bright);font-family:inherit;font-size:13px;transition:border-color .2s;}
+        .input:focus{outline:none;border-color:var(--accent);}
+        .input-sm{padding:6px 8px;font-size:11px;}
+        textarea.input{min-height:70px;resize:vertical;}
+        .qi-row{display:flex;gap:6px;margin:10px 0;}
+        .qi{flex:1;text-align:center;}
+        .qi label{font-size:8px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px;}
+        .qi input{width:100%;text-align:center;font-size:16px;font-weight:700;}
+
+        /* BUTTONS */
+        .btn{padding:8px 18px;border-radius:10px;border:none;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .25s;}
+        .btn-p{background:var(--accent);color:#fff;}
+        .btn-p:hover{background:#6b5bd9;transform:translateY(-1px);box-shadow:0 4px 15px rgba(124,108,240,.3);}
+        .btn-g{background:transparent;color:var(--dim);border:1px solid var(--border);}
+        .btn-g:hover{border-color:var(--accent);color:var(--text);}
+        .btn-g.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+        .btn-sm{padding:4px 10px;font-size:10px;border-radius:6px;}
+
+        /* ALERTS */
+        .alert{padding:12px 14px;border-radius:10px;font-size:11px;margin:8px 0;display:flex;align-items:start;gap:8px;}
+        .alert-w{background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.12);}
+        .alert-i{background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.12);}
+        .alert-s{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.12);}
+        .alert b{color:var(--bright);}
 
         /* LEVEL SELECTOR */
-        .level-selector {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        .level-btn {
-            padding: 12px 8px;
-            border-radius: 10px;
-            border: 2px solid var(--border);
-            background: var(--card);
-            color: var(--text);
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        .level-btn:hover { border-color: #444; }
-        .level-btn.selected { border-color: var(--accent); background: rgba(108,92,231,0.1); }
-        .level-btn .level-name { font-size: 14px; font-weight: 700; }
-        .level-btn .level-time { font-size: 10px; color: var(--text-dim); }
-        .level-btn .level-desc { font-size: 9px; color: var(--text-dim); margin-top: 2px; }
+        .levels{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;}
+        .lvl{padding:10px 6px;border-radius:10px;border:2px solid var(--border);background:var(--card);cursor:pointer;text-align:center;transition:all .3s;font-family:inherit;color:var(--text);}
+        .lvl:hover{border-color:#454555;}
+        .lvl.sel{border-color:var(--accent);background:var(--accent-bg);animation:pulse .5s ease;}
+        .lvl-n{font-size:16px;font-weight:800;}
+        .lvl-t{font-size:10px;color:var(--dim);}
 
-        /* CHECKLIST SECTIONS */
-        .checklist-section {
-            margin-bottom: 16px;
-        }
-        .checklist-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            border-radius: 8px 8px 0 0;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .checklist-header.t0 { background: rgba(255,255,255,0.05); color: var(--text-dim); }
-        .checklist-header.t1 { background: rgba(255,107,107,0.1); color: var(--t1); }
-        .checklist-header.t2 { background: rgba(51,154,240,0.1); color: var(--t2); }
-        .checklist-header.t3 { background: rgba(177,151,252,0.1); color: var(--t3); }
+        /* WEEK DOTS */
+        .wk-dots{display:flex;gap:3px;margin:8px 0;}
+        .wk-dot{flex:1;height:6px;border-radius:3px;background:var(--border);transition:all .3s;}
+        .wk-dot.done{background:var(--green);}
+        .wk-dot.today{background:var(--accent);box-shadow:0 0 8px rgba(124,108,240,.4);}
 
-        .checklist-body {
-            border: 1px solid var(--border);
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            overflow: hidden;
-        }
+        /* SUBJECT CARDS */
+        .subj{border-radius:12px;overflow:hidden;margin-bottom:8px;border:1px solid var(--border);transition:all .3s;cursor:pointer;}
+        .subj:hover{border-color:#404050;}
+        .subj.open{border-color:var(--accent);}
+        .subj-h{display:flex;align-items:center;padding:12px 14px;gap:12px;background:var(--card);}
+        .subj-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+        .subj-info{flex:1;}
+        .subj-name{font-size:13px;font-weight:700;color:var(--bright);}
+        .subj-meta{font-size:10px;color:var(--dim);}
+        .subj-r{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;}
+        .r-lo{background:linear-gradient(135deg,#ef4444,#dc2626);}
+        .r-md{background:linear-gradient(135deg,#f59e0b,#d97706);}
+        .r-hi{background:linear-gradient(135deg,#22c55e,#16a34a);}
+        .subj-arrow{color:var(--dim);font-size:10px;transition:transform .3s;}
+        .subj.open .subj-arrow{transform:rotate(180deg);}
+        .subj-body{display:none;padding:12px 14px;background:var(--card2);border-top:1px solid var(--border);}
+        .subj.open .subj-body{display:block;animation:fadeIn .3s ease;}
 
-        .check-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            transition: background 0.2s;
-            cursor: pointer;
-        }
-        .check-item:last-child { border-bottom: none; }
-        .check-item:hover { background: rgba(255,255,255,0.02); }
-        .check-item.done { opacity: 0.5; }
-        .check-item.done .check-text { text-decoration: line-through; }
+        /* ABOUT PAGE */
+        .about-hero{text-align:center;padding:40px 20px;background:linear-gradient(135deg,rgba(124,108,240,.05),rgba(96,165,250,.05));border-radius:16px;margin-bottom:20px;}
+        .about-hero h2{font-size:24px;font-weight:900;background:linear-gradient(135deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .about-section{margin-bottom:20px;}
+        .about-section h3{font-size:15px;font-weight:700;color:var(--accent2);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+        .about-section p,.about-section li{font-size:12px;line-height:1.7;color:var(--text);}
+        .about-section ul{padding-left:20px;}
+        .about-section li{margin-bottom:4px;}
+        .about-card{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;}
+        .about-card>div{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+        .about-card .ac-num{font-size:24px;font-weight:900;color:var(--accent2);}
+        .about-card .ac-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
 
-        .check-box {
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
-            border: 2px solid #444;
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            position: relative;
-        }
-        .check-box:checked {
-            background: var(--green);
-            border-color: var(--green);
-        }
-        .check-box:checked::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .check-content { flex: 1; }
-        .check-text { font-size: 13px; font-weight: 500; }
-        .check-detail { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
-        .check-resources { margin-top: 3px; }
-
-        .resource-tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 1px 7px;
-            border-radius: 10px;
-            font-size: 9px;
-            font-weight: 600;
-            margin: 1px 1px;
-            border: 1px solid;
-        }
-        .tag-mehlman { background: rgba(255,107,107,0.1); color: #ff6b6b; border-color: rgba(255,107,107,0.3); }
-        .tag-topnotch { background: rgba(51,154,240,0.1); color: #339af0; border-color: rgba(51,154,240,0.3); }
-        .tag-bnb { background: rgba(81,207,102,0.1); color: #51cf66; border-color: rgba(81,207,102,0.3); }
-        .tag-ome { background: rgba(34,184,207,0.1); color: #22b8cf; border-color: rgba(34,184,207,0.3); }
-        .tag-sketchy { background: rgba(255,165,2,0.1); color: #ffa502; border-color: rgba(255,165,2,0.3); }
-        .tag-pixorize { background: rgba(240,101,149,0.1); color: #f06595; border-color: rgba(240,101,149,0.3); }
-        .tag-anking { background: rgba(177,151,252,0.1); color: #b197fc; border-color: rgba(177,151,252,0.3); }
-        .tag-trans { background: rgba(255,212,59,0.1); color: #ffd43b; border-color: rgba(255,212,59,0.3); }
-        .tag-recalled { background: rgba(255,255,255,0.05); color: #aaa; border-color: rgba(255,255,255,0.15); }
-        .tag-superexam { background: rgba(51,154,240,0.15); color: #74b9ff; border-color: rgba(51,154,240,0.4); }
-        .tag-fa { background: rgba(253,203,110,0.1); color: #fdcb6e; border-color: rgba(253,203,110,0.3); }
-
-        /* PROGRESS RING */
-        .progress-ring-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin: 16px 0;
-        }
-        .ring-wrapper {
-            text-align: center;
-        }
-        .ring-label {
-            font-size: 10px;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
-
-        /* DAILY NOTES */
-        .daily-notes {
-            margin-top: 16px;
-        }
-        .daily-notes textarea {
-            width: 100%;
-            min-height: 80px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px;
-            color: var(--text);
-            font-family: inherit;
-            font-size: 12px;
-            resize: vertical;
-        }
-        .daily-notes textarea::placeholder { color: #555; }
-        .daily-notes textarea:focus { outline: none; border-color: var(--accent); }
-
-        /* QUICK INPUT ROW */
-        .quick-input-row {
-            display: flex;
-            gap: 8px;
-            margin: 12px 0;
-        }
-        .quick-input {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-        .quick-input label {
-            font-size: 9px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .quick-input input {
-            width: 100%;
-            padding: 8px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-bright);
-            font-family: inherit;
-            font-size: 16px;
-            font-weight: 700;
-            text-align: center;
-        }
-        .quick-input input:focus { outline: none; border-color: var(--accent); }
-
-        /* CARD */
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 10px;
-        }
-
-        /* WEEK INDICATOR */
-        .week-indicator {
-            display: flex;
-            gap: 3px;
-            margin: 12px 0;
-        }
-        .week-day {
-            flex: 1;
-            height: 8px;
-            border-radius: 4px;
-            background: var(--border);
-            transition: background 0.3s;
-        }
-        .week-day.done { background: var(--green); }
-        .week-day.today { background: var(--accent); box-shadow: 0 0 8px rgba(108,92,231,0.5); }
-
-        /* SCHEDULE DATA */
-        .schedule-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 14px;
-            margin-bottom: 8px;
-        }
-        .schedule-card h3 {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-bright);
-            margin-bottom: 6px;
-        }
-        .schedule-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 0;
-            font-size: 11px;
-        }
-        .tier-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        /* ALERT */
-        .alert {
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 11px;
-            margin: 10px 0;
-            display: flex;
-            align-items: start;
-            gap: 8px;
-        }
-        .alert-icon { font-size: 14px; flex-shrink: 0; }
-        .alert-warning { background: rgba(255,165,2,0.08); border: 1px solid rgba(255,165,2,0.15); }
-        .alert-success { background: rgba(81,207,102,0.08); border: 1px solid rgba(81,207,102,0.15); }
-        .alert-info { background: rgba(51,154,240,0.08); border: 1px solid rgba(51,154,240,0.15); }
-
-        /* HISTORY */
-        .history-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            margin: 12px 0;
-        }
-        .history-cell {
-            aspect-ratio: 1;
-            border-radius: 3px;
-            background: var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 7px;
-            color: var(--text-dim);
-            cursor: pointer;
-        }
-        .history-cell.l1 { background: rgba(255,255,255,0.08); }
-        .history-cell.l2 { background: rgba(51,154,240,0.2); }
-        .history-cell.l3 { background: rgba(81,207,102,0.25); }
-        .history-cell.l4 { background: rgba(108,92,231,0.35); }
-        .history-cell.today-cell { box-shadow: 0 0 0 2px var(--accent); }
+        /* HISTORY HEATMAP */
+        .heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+        .hm-cell{aspect-ratio:1;border-radius:3px;background:var(--border);transition:all .2s;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:7px;color:var(--dim);}
+        .hm-cell:hover{transform:scale(1.2);z-index:2;}
+        .hm-l1{background:rgba(255,255,255,.06);}
+        .hm-l2{background:rgba(96,165,250,.15);}
+        .hm-l3{background:rgba(74,222,128,.2);}
+        .hm-l4{background:rgba(124,108,240,.3);}
+        .hm-today{box-shadow:0 0 0 2px var(--accent);}
 
         /* RESPONSIVE */
-        @media (max-width: 600px) {
-            .level-selector { grid-template-columns: repeat(2, 1fr); }
-            .top-bar { flex-direction: column; gap: 6px; padding: 8px 12px; }
-            .top-bar-stats { gap: 12px; }
-            .quick-input-row { flex-wrap: wrap; }
-            .container { padding: 10px; }
+        @media(max-width:768px){
+            .cal-grid{grid-template-columns:repeat(7,1fr);gap:2px;}
+            .cal-cell{min-height:60px;padding:2px;}
+            .cal-block{font-size:7px;padding:1px 3px;}
+            .stats{gap:16px;flex-wrap:wrap;}
+            .levels{grid-template-columns:repeat(2,1fr);}
+            .about-card{grid-template-columns:1fr;}
+            .container{padding:10px;}
         }
-
-        /* SUBJECT DETAIL IN SCHEDULE */
-        .subj-detail-toggle {
-            cursor: pointer;
-            padding: 6px 10px;
-            border-radius: 6px;
-            background: rgba(255,255,255,0.03);
-            margin-top: 6px;
-            font-size: 10px;
-            color: var(--text-dim);
-            transition: background 0.2s;
-        }
-        .subj-detail-toggle:hover { background: rgba(255,255,255,0.06); }
-        .subj-detail-content { display: none; padding: 8px; font-size: 11px; }
-        .subj-detail-content.open { display: block; }
-
-        /* BUTTON */
-        .btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-primary { background: var(--accent); color: #fff; }
-        .btn-primary:hover { background: #5b4bd5; }
-        .btn-ghost { background: transparent; color: var(--text-dim); border: 1px solid var(--border); }
-        .btn-ghost:hover { border-color: #555; color: var(--text); }
-        .btn-sm { padding: 4px 10px; font-size: 10px; }
     </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="top-bar">
-    <div class="top-bar-left">
-        <h1>PLE TOP 1</h1>
-        <span class="date-display" id="dateDisplay"></span>
-    </div>
-    <div class="top-bar-stats">
-        <div class="mini-stat">
-            <div class="mini-stat-val" style="color:var(--orange);" id="streakVal">0</div>
-            <div class="mini-stat-label">🔥 Streak</div>
-        </div>
-        <div class="mini-stat">
-            <div class="mini-stat-val" style="color:var(--blue);" id="daysVal">—</div>
-            <div class="mini-stat-label">Days to PLE</div>
-        </div>
-        <div class="mini-stat">
-            <div class="mini-stat-val" style="color:var(--green);" id="todayPct">0%</div>
-            <div class="mini-stat-label">Today</div>
-        </div>
+<div class="hero">
+    <h1>PLE TOP 1</h1>
+    <div class="sub">Physician Licensure Examination — Interactive Protocol Dashboard</div>
+    <div class="streak-badge">
+        <span class="streak-fire">🔥</span>
+        <span class="streak-num" id="sNum">0</span>
+        <span class="streak-label">day streak</span>
+        <button class="streak-btn" onclick="addStreak(event)">+1 day</button>
     </div>
 </div>
 
-<!-- NAV -->
+<div class="stats">
+    <div class="stat"><div class="stat-v" style="color:var(--blue)" id="sDays">—</div><div class="stat-l">Days to PLE</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--green)" id="sBlocks">0</div><div class="stat-l">Study Blocks</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--purple)" id="sCards">0</div><div class="stat-l">Anki Cards</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--cyan)" id="sCases">0</div><div class="stat-l">Cases</div></div>
+    <div class="stat"><div class="stat-v" style="color:var(--green)" id="sPct">0%</div><div class="stat-l">Today</div></div>
+</div>
+
 <div class="nav">
-    <div class="nav-item active" onclick="showTab('today')">📋 Today</div>
-    <div class="nav-item" onclick="showTab('week')">📅 This Week</div>
-    <div class="nav-item" onclick="showTab('subjects')">📚 Subjects</div>
-    <div class="nav-item" onclick="showTab('checkpoints')">🧪 Checkpoints</div>
-    <div class="nav-item" onclick="showTab('resources')">📦 Resources</div>
-    <div class="nav-item" onclick="showTab('history')">📊 History</div>
+    <div class="nav-i active" onclick="go('today')">📋 Today</div>
+    <div class="nav-i" onclick="go('calendar')">📅 Calendar</div>
+    <div class="nav-i" onclick="go('subjects')">📚 Subjects</div>
+    <div class="nav-i" onclick="go('checkpoints')">🧪 Scores</div>
+    <div class="nav-i" onclick="go('resources')">📦 Resources</div>
+    <div class="nav-i" onclick="go('history')">📊 History</div>
+    <div class="nav-i" onclick="go('about')">ℹ️ About</div>
 </div>
 
 <div class="container">
 
-<!-- ========== TAB: TODAY ========== -->
+<!-- ====== TODAY ====== -->
 <div class="tab active" id="tab-today">
-
-    <div class="today-header">
-        <h2 id="todayTitle">TODAY</h2>
-        <div class="today-sub" id="todaySub"></div>
-        <div class="today-rotation" id="todayRotation"></div>
-    </div>
-
-    <!-- LEVEL SELECTOR -->
-    <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Choose today's level:</div>
-    <div class="level-selector">
-        <div class="level-btn" onclick="selectLevel(1, this)">
-            <div class="level-name">L1</div>
-            <div class="level-time">30 min</div>
-            <div class="level-desc">Anki only</div>
-        </div>
-        <div class="level-btn" onclick="selectLevel(2, this)">
-            <div class="level-name">L2</div>
-            <div class="level-time">2 hrs</div>
-            <div class="level-desc">Anki + T1 + T2</div>
-        </div>
-        <div class="level-btn" onclick="selectLevel(3, this)">
-            <div class="level-name">L3</div>
-            <div class="level-time">3 hrs</div>
-            <div class="level-desc">Anki + T1 + T2 + T3</div>
-        </div>
-        <div class="level-btn" onclick="selectLevel(4, this)">
-            <div class="level-name">L4</div>
-            <div class="level-time">4.5 hrs</div>
-            <div class="level-desc">All tiers ×2</div>
+    <div style="text-align:center;padding:16px 0;">
+        <h2 style="font-size:22px;font-weight:800;" id="tdTitle">TODAY</h2>
+        <div style="font-size:11px;color:var(--dim);margin:4px 0;" id="tdSub"></div>
+        <div style="display:inline-flex;gap:8px;margin-top:6px;">
+            <span style="padding:3px 12px;border-radius:16px;font-size:10px;font-weight:700;background:rgba(248,113,113,.1);color:var(--t1);border:1px solid rgba(248,113,113,.2);" id="tdRot">📍 Rotation</span>
+            <span style="padding:3px 12px;border-radius:16px;font-size:10px;font-weight:700;background:rgba(96,165,250,.1);color:var(--t2);border:1px solid rgba(96,165,250,.2);" id="tdDrip">💧 Drip</span>
+            <span style="padding:3px 12px;border-radius:16px;font-size:10px;font-weight:700;background:rgba(192,132,252,.1);color:var(--t3);border:1px solid rgba(192,132,252,.2);" id="tdBasic">🧬 Basic Sci</span>
         </div>
     </div>
 
-    <!-- WEEK DOTS -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <span style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">This week:</span>
-        <div class="week-indicator" id="weekDots"></div>
-        <span style="font-size:11px;font-weight:700;color:var(--text-dim);" id="weekScore"></span>
+    <!-- LEVELS -->
+    <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Choose today's level:</div>
+    <div class="levels">
+        <button class="lvl" onclick="pickLvl(1,this)"><div class="lvl-n">L1</div><div class="lvl-t">30 min · Anki only</div></button>
+        <button class="lvl" onclick="pickLvl(2,this)"><div class="lvl-n">L2</div><div class="lvl-t">2h · Anki+T1+T2</div></button>
+        <button class="lvl" onclick="pickLvl(3,this)"><div class="lvl-n">L3</div><div class="lvl-t">3h · All 3 tiers</div></button>
+        <button class="lvl" onclick="pickLvl(4,this)"><div class="lvl-n">L4</div><div class="lvl-t">4.5h · Beast mode</div></button>
     </div>
 
-    <!-- DAILY CHECKLIST: NON-NEGOTIABLE -->
-    <div class="checklist-section">
-        <div class="checklist-header t0">
-            🔒 Non-Negotiable (every single day)
-            <span id="nnProgress">0/3</span>
-        </div>
-        <div class="checklist-body">
-            <label class="check-item" id="ci-anki-review">
-                <input type="checkbox" class="check-box" onchange="updateDaily()">
-                <div class="check-content">
-                    <div class="check-text">Anki Reviews (all due cards)</div>
-                    <div class="check-detail">Before phone scrolling. Even on L1 days. THE habit.</div>
-                </div>
-            </label>
-            <label class="check-item" id="ci-anki-new">
-                <input type="checkbox" class="check-box" onchange="updateDaily()">
-                <div class="check-content">
-                    <div class="check-text">Anki New Cards (20)</div>
-                    <div class="check-detail">Unsuspend from AnKing OR create custom from today's study</div>
-                    <div class="check-resources">
-                        <span class="resource-tag tag-anking">💜 AnKing</span>
-                    </div>
-                </div>
-            </label>
-            <label class="check-item" id="ci-log">
-                <input type="checkbox" class="check-box" onchange="updateDaily()">
-                <div class="check-content">
-                    <div class="check-text">Daily Log Entry (Notion, 3 min)</div>
-                    <div class="check-detail">Level + Anki stats + what you studied + case (if any)</div>
-                </div>
-            </label>
+    <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+        <span style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;">This week:</span>
+        <div class="wk-dots" id="wkDots"></div>
+        <span style="font-size:10px;font-weight:700;color:var(--dim);" id="wkScore"></span>
+    </div>
+
+    <!-- NON-NEGOTIABLE -->
+    <div style="margin-bottom:12px;">
+        <div class="cl-header cl-h0">🔒 Non-Negotiable <span id="nnP">0/3</span></div>
+        <div class="cl-body">
+            <label class="cl-item"><input type="checkbox" class="cl-box" data-g="nn" onchange="upd()"><div><div class="cl-text">Anki Reviews — all due cards</div><div class="cl-detail">Before phone scrolling. THE habit.</div></div></label>
+            <label class="cl-item"><input type="checkbox" class="cl-box" data-g="nn" onchange="upd()"><div><div class="cl-text">Anki New Cards (20)</div><div class="cl-detail">Unsuspend AnKing or create custom</div><div><span class="tag tag-ak">💜 AnKing</span></div></div></label>
+            <label class="cl-item"><input type="checkbox" class="cl-box" data-g="nn" onchange="upd()"><div><div class="cl-text">Daily Log (Notion, 3 min)</div><div class="cl-detail">Level + stats + what you studied</div></div></label>
         </div>
     </div>
 
-    <!-- TIER 1 -->
-    <div class="checklist-section">
-        <div class="checklist-header t1">
-            🔴 Tier 1 — Current Rotation
-            <span id="t1Progress">0/2</span>
-        </div>
-        <div class="checklist-body">
-            <label class="check-item" id="ci-t1-study">
-                <input type="checkbox" class="check-box" onchange="updateDaily()">
-                <div class="check-content">
-                    <div class="check-text" id="t1-study-text">Study Block: [rotation subject]</div>
-                    <div class="check-detail" id="t1-study-detail">45 min — endorsement Qs or transcription review</div>
-                    <div class="check-resources" id="t1-resources">
-                        <span class="resource-tag tag-trans">📄 Endorsed Qs</span>
-                        <span class="resource-tag tag-trans">📄 Transcription</span>
-                    </div>
-                </div>
-            </label>
-            <label class="check-item" id="ci-t1-case">
-                <input type="checkbox" class="check-box" onchange="updateDaily()">
-                <div class="check-content">
-                    <div class="check-text">Log 1 Case (Case Vault)</div>
-                    <div class="check-detail">Patient + Diagnosis + Learning Point + Basic Science Bridge</div>
-                </div>
-            </label>
+    <!-- T1: OPHTHA -->
+    <div style="margin-bottom:12px;">
+        <div class="cl-header cl-h1">🔴 Tier 1 — Ophtha (Current Rotation) <span id="t1P">0/2</span></div>
+        <div class="cl-body">
+            <label class="cl-item"><input type="checkbox" class="cl-box" data-g="t1" onchange="upd()"><div><div class="cl-text" id="t1Text">Ophtha: Endorsement Qs + Transcription Review</div><div class="cl-detail">45-min study block: Questions first → study mistakes → Anki</div><div>
+                <span class="tag tag-tr">📄 Ophtha Endorsed</span>
+                <span class="tag tag-tr">📄 Ophtha Trans</span>
+                <span class="tag tag-bk">📖 Vaughan & Asbury</span>
+                <span class="tag tag-rc">📝 Prior Exams</span>
+            </div></div></label>
+            <label class="cl-item"><input type="checkbox" class="cl-box" data-g="t1" onchange="upd()"><div><div class="cl-text">Log 1 Ophtha Case (Case Vault)</div><div class="cl-detail">Dx + Learning Point + Basic Science Bridge</div></div></label>
         </div>
     </div>
 
-    <!-- TIER 2 -->
-    <div class="checklist-section">
-        <div class="checklist-header t2">
-            🔵 Tier 2 — Clinical Drip (15-20 min)
-            <span id="t2Progress">0/1</span>
-        </div>
-        <div class="checklist-body">
-            <label class="check-item" id="ci-t2-drip">
-                <input type="checkbox" class="check-box" onchange="updateDaily()">
-                <div class="check-content">
-                    <div class="check-text" id="t2-drip-text">Clinical Drip: [subject]</div>
-                    <div class="check-detail" id="t2-drip-detail">Read 3-4 trans pages OR do 10 endorsed Qs</div>
-                    <div class="check-resources" id="t2-resources">
-                        <span class="resource-tag tag-trans">📄 Trans</span>
-                        <span class="resource-tag tag-trans">📄 Endorsed Qs</span>
-                    </div>
-                </div>
-            </label>
+    <!-- T2: IM DRIP -->
+    <div style="margin-bottom:12px;">
+        <div class="cl-header cl-h2">🔵 Tier 2 — IM Clinical Drip (15-20 min) <span id="t2P">0/1</span></div>
+        <div class="cl-body">
+            <label class="cl-item"><input type="checkbox" class="cl-box" data-g="t2" onchange="upd()"><div><div class="cl-text" id="t2Text">IM Drip: Read 3-4 pages Cardiology trans OR 10 IM endorsed Qs</div><div class="cl-detail">Keep IM warm for comp exam. Don't let it go cold.</div><div>
+                <span class="tag tag-tr">📄 IM Trans</span>
+                <span class="tag tag-tr">📄 IM Endorsed</span>
+                <span class="tag tag-bk">📖 Harrison's (key chapters)</span>
+                <span class="tag tag-m">🔴 Mehlman HY IM</span>
+            </div></div></label>
         </div>
     </div>
 
-    <!-- TIER 3 -->
-    <div class="checklist-section">
-        <div class="checklist-header t3">
-            🟣 Tier 3 — Basic Science (45 min evening block)
-            <span id="t3Progress">0/1</span>
-        </div>
-        <div class="checklist-body">
-            <label class="check-item" id="ci-t3-block">
-                <input type="checkbox" class="check-box" onchange="updateDaily()">
-                <div class="check-content">
-                    <div class="check-text" id="t3-block-text">Evening Block: [basic science subject]</div>
-                    <div class="check-detail" id="t3-block-detail">Questions first → study mistakes → Anki cards</div>
-                    <div class="check-resources" id="t3-resources"></div>
-                </div>
-            </label>
+    <!-- T3: BASIC SCI -->
+    <div style="margin-bottom:12px;">
+        <div class="cl-header cl-h3">🟣 Tier 3 — Basic Science Evening Block (45 min) <span id="t3P">0/1</span></div>
+        <div class="cl-body">
+            <label class="cl-item"><input type="checkbox" class="cl-box" data-g="t3" onchange="upd()"><div><div class="cl-text" id="t3Text">Legal Medicine: Topnotch Chapter + PLE Recalled Qs</div><div class="cl-detail" id="t3Detail">Questions first → study mistakes → create 5-10 custom Anki cards</div><div id="t3Res">
+                <span class="tag tag-tn">📘 Topnotch LegMed</span>
+                <span class="tag tag-rc">📝 PLE Recalled</span>
+                <span class="tag tag-om">🎬 OME Ethics</span>
+            </div></div></label>
         </div>
     </div>
 
-    <!-- QUICK INPUTS -->
-    <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin:16px 0 6px;text-transform:uppercase;letter-spacing:1px;">Quick Stats</div>
-    <div class="quick-input-row">
-        <div class="quick-input">
-            <label>Anki Reviews</label>
-            <input type="number" id="ankiReviews" placeholder="0" onchange="saveQuickStat(this)">
-        </div>
-        <div class="quick-input">
-            <label>Anki New</label>
-            <input type="number" id="ankiNew" placeholder="0" onchange="saveQuickStat(this)">
-        </div>
-        <div class="quick-input">
-            <label>Anki %</label>
-            <input type="number" id="ankiPercent" placeholder="90" onchange="saveQuickStat(this)">
-        </div>
-        <div class="quick-input">
-            <label>Study Blocks</label>
-            <input type="number" id="studyBlocks" placeholder="0" onchange="saveQuickStat(this)">
-        </div>
-        <div class="quick-input">
-            <label>Sleep (hrs)</label>
-            <input type="number" id="sleepHrs" placeholder="7" step="0.5" onchange="saveQuickStat(this)">
-        </div>
+    <!-- QUICK STATS -->
+    <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin:14px 0 4px;">Quick Stats</div>
+    <div class="qi-row">
+        <div class="qi"><label>Reviews</label><input class="input input-sm" type="number" id="qR" placeholder="0" onchange="saveQ(this)"></div>
+        <div class="qi"><label>New Cards</label><input class="input input-sm" type="number" id="qN" placeholder="0" onchange="saveQ(this)"></div>
+        <div class="qi"><label>Anki %</label><input class="input input-sm" type="number" id="qA" placeholder="90" onchange="saveQ(this)"></div>
+        <div class="qi"><label>Blocks</label><input class="input input-sm" type="number" id="qB" placeholder="0" onchange="saveQ(this)"></div>
+        <div class="qi"><label>Sleep</label><input class="input input-sm" type="number" id="qS" placeholder="7" step=".5" onchange="saveQ(this)"></div>
     </div>
 
-    <!-- EXERCISE -->
-    <div style="display:flex;gap:6px;margin:8px 0;">
-        <span style="font-size:10px;color:var(--text-dim);padding:6px 0;">Exercise:</span>
-        <button class="btn btn-ghost btn-sm exercise-btn" onclick="toggleExercise(this,'Run')">🏃 Run</button>
-        <button class="btn btn-ghost btn-sm exercise-btn" onclick="toggleExercise(this,'Gym')">🏋️ Gym</button>
-        <button class="btn btn-ghost btn-sm exercise-btn" onclick="toggleExercise(this,'Rest')">😴 Rest</button>
+    <div style="display:flex;gap:4px;margin:6px 0;">
+        <span style="font-size:9px;color:var(--dim);padding:6px 0;">Exercise:</span>
+        <button class="btn btn-g btn-sm ex-btn" onclick="pickEx(this,'Run')">🏃 Run</button>
+        <button class="btn btn-g btn-sm ex-btn" onclick="pickEx(this,'Gym')">🏋️ Gym</button>
+        <button class="btn btn-g btn-sm ex-btn" onclick="pickEx(this,'Rest')">😴 Rest</button>
     </div>
 
-    <!-- DAILY NOTES -->
-    <div class="daily-notes">
-        <div style="font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Notes / Brain Dump</div>
-        <textarea id="dailyNotes" placeholder="Case seen today... Thing I got wrong... Concept to review... Tomorrow's plan..." onchange="saveDailyNotes()"></textarea>
+    <div style="margin:12px 0;">
+        <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Notes / Brain Dump</div>
+        <textarea class="input" id="notes" placeholder="Case seen today... wrong answer... concept to review... tomorrow's plan..." onchange="LS.setItem('n-'+DK,this.value)"></textarea>
     </div>
 
-    <!-- END OF DAY -->
     <div style="text-align:center;margin:20px 0;">
-        <button class="btn btn-primary" onclick="completeDay()" id="completeDayBtn">
-            ✅ Complete Day & Log Streak
-        </button>
-        <div style="font-size:10px;color:var(--text-dim);margin-top:6px;">
-            This saves today's data and increments your streak (if Anki reviews done)
-        </div>
+        <button class="btn btn-p" onclick="endDay()" id="endBtn">✅ Complete Day & Log Streak</button>
+        <div style="font-size:9px;color:var(--dim);margin-top:4px;">Saves data + increments streak if Anki reviews done</div>
     </div>
 </div>
 
-<!-- ========== TAB: THIS WEEK ========== -->
-<div class="tab" id="tab-week">
-    <div style="text-align:center;padding:20px;">
-        <h2 style="font-size:20px;font-weight:800;margin-bottom:4px;" id="weekTitle">CURRENT WEEK</h2>
-        <div style="font-size:12px;color:var(--text-dim);" id="weekSubtitle"></div>
+<!-- ====== CALENDAR ====== -->
+<div class="tab" id="tab-calendar">
+    <div style="text-align:center;padding:12px 0;">
+        <h2 style="font-size:18px;font-weight:800;">📅 Study Calendar</h2>
+        <div style="font-size:11px;color:var(--dim);">Drag and drop blocks to reschedule. Changes save automatically.</div>
     </div>
-
-    <div id="weekSchedule"></div>
-
-    <div class="alert alert-info" style="margin-top:12px;">
-        <span class="alert-icon">💡</span>
-        <div>
-            <strong>The Three-Tier Rule:</strong> On a busy day, if you can only do ONE thing beyond Anki → do T1 (rotation). If you have more time → add T2 (drip). If you have evening free → add T3 (basic science). Never skip Anki reviews.
-        </div>
+    <div class="cal-nav">
+        <button class="cal-btn" onclick="calPrev()">◀</button>
+        <h3 id="calTitle"></h3>
+        <button class="cal-btn" onclick="calNext()">▶</button>
     </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;font-size:9px;">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(248,113,113,.15);vertical-align:middle;"></span> T1 Rotation</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(96,165,250,.15);vertical-align:middle;"></span> T2 Clinical Drip</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(192,132,252,.15);vertical-align:middle;"></span> T3 Basic Science</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(74,222,128,.15);vertical-align:middle;"></span> 🧪 Checkpoint</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(248,113,113,.2);vertical-align:middle;"></span> ★ Exam</span>
+    </div>
+    <div class="alert alert-i"><span>💡</span><div><b>Drag & drop</b> any study block to a different day to customize your schedule. Hold on mobile to drag. Your changes are saved in your browser.</div></div>
 </div>
 
-<!-- ========== TAB: SUBJECTS ========== -->
+<!-- ====== SUBJECTS ====== -->
 <div class="tab" id="tab-subjects">
-    <div style="padding:16px 0 8px;">
-        <h2 style="font-size:18px;font-weight:800;">📚 Subject Progress</h2>
-        <div style="font-size:11px;color:var(--text-dim);">Track your first pass through all 6 basic science subjects</div>
-    </div>
-    <div id="subjectsList"></div>
+    <div style="padding:12px 0 8px;"><h2 style="font-size:18px;font-weight:800;">📚 All 12 PLE Subjects</h2><div style="font-size:11px;color:var(--dim);">Click any subject for resources + topics + study protocol</div></div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;" id="subjFilters"></div>
+    <div id="subjList"></div>
 </div>
 
-<!-- ========== TAB: CHECKPOINTS ========== -->
+<!-- ====== CHECKPOINTS ====== -->
 <div class="tab" id="tab-checkpoints">
-    <div style="padding:16px 0 8px;">
-        <h2 style="font-size:18px;font-weight:800;">🧪 Checkpoints & Scores</h2>
-    </div>
-    <div id="checkpointsList"></div>
+    <div style="padding:12px 0 8px;"><h2 style="font-size:18px;font-weight:800;">🧪 Checkpoints & Score Tracker</h2><div style="font-size:11px;color:var(--dim);">Enter scores as you complete each checkpoint</div></div>
+    <div id="cpList"></div>
 </div>
 
-<!-- ========== TAB: RESOURCES ========== -->
+<!-- ====== RESOURCES ====== -->
 <div class="tab" id="tab-resources">
-    <div style="padding:16px 0 8px;">
-        <h2 style="font-size:18px;font-weight:800;">📦 Resource Quick Reference</h2>
-        <div style="font-size:11px;color:var(--text-dim);">What to use, when, for what. Don't get lost.</div>
-    </div>
+    <div style="padding:12px 0 8px;"><h2 style="font-size:18px;font-weight:800;">📦 Complete Resource Guide</h2><div style="font-size:11px;color:var(--dim);">Every resource you have, when and how to use it</div></div>
+    
+    <div class="alert alert-w"><span>🚨</span><div><b>THE #1 RULE:</b> ONE primary resource per session. Don't open 5 things. Questions first → study mistakes in ONE resource → Anki. Done.</div></div>
 
-    <div class="alert alert-warning">
-        <span class="alert-icon">🚨</span>
-        <div><strong>RULE:</strong> ONE primary resource per session. Don't open 5 things. Questions first → study mistakes in ONE resource → make Anki cards. Done.</div>
-    </div>
-
+    <!-- MEHLMAN -->
     <div class="card" style="border-left:3px solid var(--red);">
-        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">🔴 Mehlman PDFs</div>
-        <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Ultra-condensed rapid review. NEVER read first — always AFTER watching videos/reading First Aid.</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;"><span class="tag tag-m">🔴 Mehlman PDFs</span> — Ultra-condensed rapid review</div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:8px;">NEVER read first. Always AFTER watching videos. Use as second-pass reinforcement + pre-checkpoint cramming.</div>
         <div style="font-size:10px;">
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Biochem/Arrows Biochem</strong> → After BnB Biochem, as rapid review before C2</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Micro</strong> → After First Aid Micro reading, quick bug summary</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Anatomy / HY Neuroanatomy</strong> → After BnB Anatomy, reinforce neuro + extremities</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Biostats</strong> → During PrevMed study, excellent epi/biostats</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>HY Pharm / Arrows Pharm</strong> → After Sketchy/BnB Pharm, rapid drug review</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>Medical Ethics</strong> → During Legal Med study, bioethics supplement</div>
-            <div style="padding:3px 0;"><strong>HY IM/Surg/Pedia/OB</strong> → Save for internship deep dives + dedicated review</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>HY Biochem + Arrows Biochem</b> → After BnB, rapid pathway review before C2</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>HY Micro + Arrows</b> → After First Aid Micro, quick bug summary</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>HY Anatomy + HY Neuroanatomy</b> → After BnB Anatomy, reinforce neuro/extremities</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>HY Biostats</b> → During PrevMed (excellent epi/biostats)</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>HY Pharm + Arrows Pharm</b> → After Sketchy/BnB, rapid drug review</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>Medical Ethics</b> → During Legal Med, bioethics supplement</div>
+            <div style="padding:4px 0;"><b>HY IM/Surgery/Pedia/OB</b> → Internship deep dives + dedicated review</div>
         </div>
     </div>
 
+    <!-- TOPNOTCH -->
     <div class="card" style="border-left:3px solid var(--blue);">
-        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">📘 Topnotch (Books + SuperExams)</div>
-        <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">THE Philippine PLE standard. Critical for PH-specific content.</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;"><span class="tag tag-tn">📘 Topnotch</span> + <span class="tag tag-se">🏆 SuperExams</span></div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:8px;">THE Philippine PLE standard. CRITICAL for PH-specific content.</div>
         <div style="font-size:10px;">
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--red);">🔴 CRITICAL:</strong> TN Legal Medicine (your ONLY source, read cover to cover)</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--red);">🔴 CRITICAL:</strong> TN Preventive Med (DOH programs, EPI, PH laws)</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong style="color:var(--red);">🔴 CRITICAL:</strong> TN Parasitology (PH-endemic parasites)</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>🏆 SuperExams:</strong> Use for checkpoint tests + practice simulations. Don't burn casually.</div>
-            <div style="padding:3px 0;"><strong>TN Clinical subjects:</strong> Save for internship deep dives (Mar-May 2027)</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--red);font-weight:700;">🔴 CRITICAL:</span> <b>TN Legal Medicine</b> — your ONLY source (read cover to cover)</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--red);font-weight:700;">🔴 CRITICAL:</span> <b>TN Preventive Med</b> — DOH programs, EPI, PH laws</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--red);font-weight:700;">🔴 CRITICAL:</span> <b>TN Parasitology</b> — PH-endemic parasites</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>🏆 SuperExams:</b> For checkpoint tests + practice sims. Don't burn casually.</div>
+            <div style="padding:4px 0;"><b>TN Clinical subjects:</b> Internship deep dives (Mar-May 2027)</div>
         </div>
     </div>
 
+    <!-- VIDEOS -->
     <div class="card" style="border-left:3px solid var(--green);">
-        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">🎬 Videos (BnB, OME, Sketchy, Pixorize)</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px;">🎬 Video Resources</div>
         <div style="font-size:10px;">
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><span class="resource-tag tag-bnb">BnB</span> PRIMARY for: Biochem, Anatomy, Physio, Path, Pharm (conceptual)</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><span class="resource-tag tag-ome">OME</span> Best for: Clinical subject overviews (Pedia, OB, IM, Surg). Also Ethics.</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><span class="resource-tag tag-sketchy">Sketchy</span> Best for: Micro (bacteria, viruses) + Pharm (drug MOA). Visual memory.</div>
-            <div style="padding:3px 0;"><span class="resource-tag tag-pixorize">Pixorize</span> Best for: Vitamins, storage diseases, some immunology. Visual complement to BnB.</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span class="tag tag-bb">🎬 BnB</span> <b>PRIMARY for:</b> Biochem, Anatomy, Physio, Path, Pharm. Conceptual mastery.</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span class="tag tag-om">🎬 OME</span> <b>Best for:</b> Clinical overviews (Pedia, OB, IM, Surg). Also Ethics. Short & high-yield.</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span class="tag tag-sk">🎬 Sketchy</span> <b>Best for:</b> Micro (bugs) + Pharm (drugs). Visual memory. Links to AnKing tags.</div>
+            <div style="padding:4px 0;"><span class="tag tag-px">🎨 Pixorize</span> <b>Best for:</b> Vitamins, lysosomal storage diseases, immunology. Visual complement.</div>
         </div>
     </div>
 
+    <!-- BIG BOOKS -->
+    <div class="card" style="border-left:3px solid var(--cyan);">
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;"><span class="tag tag-bk">📖 The Big Textbooks</span> — When & How to Use Them</div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:8px;">These are REFERENCE books, not cover-to-cover reading. Use them to go deep on specific topics after getting questions wrong.</div>
+        <div style="font-size:10px;">
+            <div style="padding:6px 0;border-bottom:1px solid var(--border);">
+                <b style="color:var(--cyan);">📖 Harrison's Principles of Internal Medicine</b><br>
+                <span style="color:var(--dim);">When:</span> During IM clinical drip + internship IM rotation. NOT now (too dense).<br>
+                <span style="color:var(--dim);">How:</span> Look up specific diseases you got wrong on practice Qs. Read the 2-3 page overview, not the full chapter. Excellent for pathophysiology understanding.<br>
+                <span style="color:var(--dim);">Key chapters:</span> Heart Failure, ACS, COPD/Asthma, Pneumonia, Hepatitis/Cirrhosis, DM, Thyroid, Anemias, Dengue, TB, HIV
+            </div>
+            <div style="padding:6px 0;border-bottom:1px solid var(--border);">
+                <b style="color:var(--cyan);">📖 Schwartz's Principles of Surgery</b><br>
+                <span style="color:var(--dim);">When:</span> During Surgery drip + internship Surgery rotation.<br>
+                <span style="color:var(--dim);">How:</span> Reference for surgical decision-making Qs. Focus on "Indications for Surgery" sections.<br>
+                <span style="color:var(--dim);">Key chapters:</span> Trauma (ATLS), Acute Abdomen, Breast, Thyroid, Hernia, Colorectal, HPB
+            </div>
+            <div style="padding:6px 0;border-bottom:1px solid var(--border);">
+                <b style="color:var(--cyan);">📖 Nelson Textbook of Pediatrics</b><br>
+                <span style="color:var(--dim);">When:</span> During Pedia rotation (April) + internship Pedia rotation.<br>
+                <span style="color:var(--dim);">How:</span> Reference for specific pediatric diseases. Focus on management algorithms.<br>
+                <span style="color:var(--dim);">Key chapters:</span> Growth & Development, Immunization, Neonatal, Infectious Diseases, Nutrition, Emergencies
+            </div>
+            <div style="padding:6px 0;border-bottom:1px solid var(--border);">
+                <b style="color:var(--cyan);">📖 Williams Obstetrics</b><br>
+                <span style="color:var(--dim);">When:</span> During OB clinical drip + internship OB rotation.<br>
+                <span style="color:var(--dim);">How:</span> Reference for complications and management. Excellent diagrams.<br>
+                <span style="color:var(--dim);">Key chapters:</span> Normal Labor, Pre-eclampsia/Eclampsia, GDM, Placental Abnormalities, PPH, Ectopic, Molar
+            </div>
+            <div style="padding:6px 0;">
+                <b style="color:var(--cyan);">📖 Vaughan & Asbury's General Ophthalmology</b><br>
+                <span style="color:var(--dim);">When:</span> NOW (Ophtha rotation). Primary textbook for ophtha study.<br>
+                <span style="color:var(--dim);">How:</span> Read key chapters aligned with endorsement topics. Excellent for Ophtha final.<br>
+                <span style="color:var(--dim);">Key chapters:</span> Glaucoma, Cataract, Retinal Diseases, Strabismus, Neuro-ophthalmology, Trauma
+            </div>
+        </div>
+        <div class="alert alert-w" style="margin-top:8px;"><span>⚠️</span><div><b>Don't read textbooks cover to cover.</b> Protocol: Get question wrong → look up THAT topic in the textbook → read 2-3 pages → make Anki card → move on. Textbooks are dictionaries, not novels.</div></div>
+    </div>
+
+    <!-- MADE RIDICULOUSLY SIMPLE -->
+    <div class="card" style="border-left:3px solid #86efac;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;"><span class="tag tag-mrs">📗 "Made Ridiculously Simple" Series</span></div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:8px;">Quick, humorous, high-yield. Great for first-pass conceptual understanding. Use BEFORE detailed resources.</div>
+        <div style="font-size:10px;">
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);">
+                <b style="color:#86efac;">📗 Microbiology Made Ridiculously Simple (MRS)</b><br>
+                <span style="color:var(--dim);">When:</span> Mar 22 – Apr 4 (Micro-Para study period). Read BEFORE First Aid Micro.<br>
+                <span style="color:var(--dim);">How:</span> Read the bug summaries for quick mental framework → then use First Aid + Sketchy for depth.<br>
+                <span style="color:var(--dim);">Best for:</span> Getting the "big picture" of each organism. Mnemonics. Quick differentials.<br>
+                <span style="color:var(--dim);">Flow:</span> MRS overview → Sketchy video → First Aid detail → Mehlman HY → AnKing Anki
+            </div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);">
+                <b style="color:#86efac;">📗 Clinical Anatomy Made Ridiculously Simple</b><br>
+                <span style="color:var(--dim);">When:</span> Apr 5–18 (Anatomy study). Quick read before BnB videos if struggling.<br>
+                <span style="color:var(--dim);">How:</span> Skim for spatial orientation → then use BnB for clinical correlations.
+            </div>
+            <div style="padding:4px 0;">
+                <b style="color:#86efac;">📗 Pharmacology Made Ridiculously Simple</b><br>
+                <span style="color:var(--dim);">When:</span> May 5–11 (Pharm quick pass). Skim before Sketchy if drug classes are confusing.<br>
+                <span style="color:var(--dim);">How:</span> Read drug class overviews → Sketchy for visual memory → BnB for MOA depth.
+            </div>
+        </div>
+    </div>
+
+    <!-- TRANSES -->
     <div class="card" style="border-left:3px solid var(--yellow);">
-        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">📄 Transes + Prior Exams (3 years)</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;"><span class="tag tag-tr">📄 Transcriptions + Prior Exams (3 years)</span></div>
         <div style="font-size:10px;">
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>Current rotation trans:</strong> T1 study during rotation</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>Big 4 trans (IM/Surg/Pedia/OB):</strong> T2 clinical drip, 3-4 pages/day</div>
-            <div style="padding:3px 0;border-bottom:1px solid var(--border);"><strong>Prior exams × 3 years:</strong> GOLD for finals. ~50% repeat. Memorize.</div>
-            <div style="padding:3px 0;"><strong>Endorsed Qs:</strong> Checkpoints F1, F2 + practice sims + comp prep</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>Current rotation trans:</b> T1 study during hospital hours</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>Big 4 trans (IM/Surg/Pedia/OB):</b> T2 clinical drip, 3-4 pages/day</div>
+            <div style="padding:4px 0;border-bottom:1px solid var(--border);"><b>Prior exams × 3 years:</b> GOLD for finals. ~50% of Qs repeat. Memorize answers.</div>
+            <div style="padding:4px 0;"><b>Endorsed Qs:</b> F1, F2 clinical checkpoints + practice sims</div>
         </div>
     </div>
 </div>
 
-<!-- ========== TAB: HISTORY ========== -->
+<!-- ====== HISTORY ====== -->
 <div class="tab" id="tab-history">
-    <div style="padding:16px 0 8px;">
-        <h2 style="font-size:18px;font-weight:800;">📊 Study History</h2>
-        <div style="font-size:11px;color:var(--text-dim);">Your consistency heatmap. Green = studied. Brighter = higher level.</div>
+    <div style="padding:12px 0 8px;"><h2 style="font-size:18px;font-weight:800;">📊 Study History</h2><div style="font-size:11px;color:var(--dim);">Consistency heatmap — darker = higher level</div></div>
+    <div class="heatmap" id="heatmap"></div>
+    <div style="display:flex;gap:6px;align-items:center;margin:8px 0;font-size:9px;color:var(--dim);">
+        <span>Less</span>
+        <div style="width:10px;height:10px;border-radius:2px;background:var(--border);"></div>
+        <div style="width:10px;height:10px;border-radius:2px;" class="hm-l1"></div>
+        <div style="width:10px;height:10px;border-radius:2px;" class="hm-l2"></div>
+        <div style="width:10px;height:10px;border-radius:2px;" class="hm-l3"></div>
+        <div style="width:10px;height:10px;border-radius:2px;" class="hm-l4"></div>
+        <span>More</span>
     </div>
-    <div style="display:flex;gap:4px;margin-bottom:8px;">
-        <span style="font-size:9px;color:var(--text-dim);">Mon</span>
-        <span style="font-size:9px;color:var(--text-dim);margin-left:auto;">Sun</span>
-    </div>
-    <div class="history-grid" id="historyGrid"></div>
-    <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
-        <span style="font-size:9px;color:var(--text-dim);">Less</span>
-        <div style="width:12px;height:12px;border-radius:2px;background:var(--border);"></div>
-        <div style="width:12px;height:12px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>
-        <div style="width:12px;height:12px;border-radius:2px;background:rgba(51,154,240,0.2);"></div>
-        <div style="width:12px;height:12px;border-radius:2px;background:rgba(81,207,102,0.25);"></div>
-        <div style="width:12px;height:12px;border-radius:2px;background:rgba(108,92,231,0.35);"></div>
-        <span style="font-size:9px;color:var(--text-dim);">More</span>
-    </div>
-
-    <div class="card" style="margin-top:16px;">
+    <div class="card" style="margin-top:12px;">
         <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Cumulative Stats</div>
-        <div class="quick-input-row">
-            <div class="quick-input">
-                <label>Total Study Blocks</label>
-                <div style="font-size:24px;font-weight:800;color:var(--green);" id="totalBlocks">0</div>
-            </div>
-            <div class="quick-input">
-                <label>Total Anki Cards Made</label>
-                <div style="font-size:24px;font-weight:800;color:var(--purple);" id="totalCards">0</div>
-            </div>
-            <div class="quick-input">
-                <label>Total Cases Logged</label>
-                <div style="font-size:24px;font-weight:800;color:var(--cyan);" id="totalCases">0</div>
-            </div>
-            <div class="quick-input">
-                <label>Days at L2+</label>
-                <div style="font-size:24px;font-weight:800;color:var(--blue);" id="totalL2">0</div>
-            </div>
+        <div class="qi-row">
+            <div class="qi"><div style="font-size:24px;font-weight:800;color:var(--green);" id="hBlocks">0</div><label>Total Blocks</label></div>
+            <div class="qi"><div style="font-size:24px;font-weight:800;color:var(--purple);" id="hCards">0</div><label>Cards Made</label></div>
+            <div class="qi"><div style="font-size:24px;font-weight:800;color:var(--blue);" id="hL2">0</div><label>Days L2+</label></div>
+            <div class="qi"><div style="font-size:24px;font-weight:800;color:var(--orange);" id="hStreak">0</div><label>Best Streak</label></div>
         </div>
     </div>
 </div>
 
-</div><!-- /container -->
+<!-- ====== ABOUT ====== -->
+<div class="tab" id="tab-about">
+    <div class="about-hero">
+        <h2>The PLE Top 1 Protocol</h2>
+        <div style="font-size:12px;color:var(--dim);margin-top:6px;">A 20-month systematic plan to top the Philippine Physician Licensure Examination</div>
+        <div style="font-size:11px;color:var(--accent2);margin-top:8px;">Built for a PGH clerk who wants to prove that consistency beats genius.</div>
+    </div>
+
+    <div class="about-card">
+        <div><div class="ac-num">20</div><div class="ac-label">Months of Prep</div></div>
+        <div><div class="ac-num">12</div><div class="ac-label">PLE Subjects</div></div>
+        <div><div class="ac-num">90%+</div><div class="ac-label">Target Average</div></div>
+    </div>
+
+    <div class="about-section">
+        <h3>📋 What Is This?</h3>
+        <p>This is an interactive study protocol designed around a single insight: <b>the PLE rewards breadth and consistency, not genius-level intelligence.</b></p>
+        <p style="margin-top:6px;">The PLE tests 12 subjects equally weighted. A genius who neglects Legal Medicine (scoring 72%) will be beaten by a disciplined student who systematically covered everything (scoring 88% on Legal Med). Your edge is the 17-month head start in spaced repetition that most examinees don't have.</p>
+    </div>
+
+    <div class="about-section">
+        <h3>🎯 The Three-Tier Daily System</h3>
+        <p>Every day, you study three things in priority order:</p>
+        <ul>
+            <li><b style="color:var(--t1);">Tier 1 (Rotation):</b> Whatever clinical rotation you're on. This prepares you for June finals and builds clinical knowledge for the PLE clinical subjects. Uses endorsements, transcriptions, and textbooks.</li>
+            <li><b style="color:var(--t2);">Tier 2 (Clinical Drip):</b> 15-20 minutes per day touching a BIG clinical subject (IM, Surgery, Pedia, OB) that you're NOT currently rotating through. This prevents subjects from going "cold" before the comprehensive exam. Uses transcriptions and endorsed questions.</li>
+            <li><b style="color:var(--t3);">Tier 3 (Basic Science):</b> 45-minute evening study block on your 6 weakest basic science subjects (Legal Med, Biochem, Micro-Para, Anatomy, PrevMed, Pharm). These rotate bi-weekly. Uses BnB, Sketchy, Topnotch, Mehlman, First Aid, and PLE recalled questions.</li>
+        </ul>
+    </div>
+
+    <div class="about-section">
+        <h3>📖 The 45-Minute Study Block Protocol</h3>
+        <p>Every study block follows the same structure:</p>
+        <ul>
+            <li><b>Minutes 0-15:</b> Do 15-20 questions (PLE recalled, endorsed, SuperExam, or Mehlman)</li>
+            <li><b>Minutes 15-20:</b> Score yourself. Identify what you got wrong.</li>
+            <li><b>Minutes 20-40:</b> Study ONLY what you got wrong (watch BnB/Sketchy video, read First Aid/Topnotch, check Mehlman HY)</li>
+            <li><b>Minutes 40-45:</b> Create 5-10 Anki cards from your mistakes</li>
+        </ul>
+        <p style="margin-top:6px;">This is questions-first learning. You never "read a chapter." You test yourself, find gaps, fill gaps, and lock it in with Anki.</p>
+    </div>
+
+    <div class="about-section">
+        <h3>📦 The Resource Hierarchy</h3>
+        <p>You have many resources. Here's the hierarchy to prevent getting lost:</p>
+        <ul>
+            <li><b>Questions (always first):</b> PLE Recalled → Endorsed Qs → Topnotch SuperExam → Mehlman Qs</li>
+            <li><b>Primary learning (for mistakes):</b> BnB/Sketchy/OME videos → First Aid → Topnotch books</li>
+            <li><b>Rapid review (second pass):</b> Mehlman HY PDFs → Mehlman Arrows</li>
+            <li><b>Visual mnemonics:</b> Pixorize (vitamins, storage diseases) → Sketchy (bugs, drugs)</li>
+            <li><b>Quick framework:</b> Made Ridiculously Simple series (read before detailed resources)</li>
+            <li><b>Deep reference (when stuck):</b> Harrison's, Schwartz, Nelson, Williams, Vaughan & Asbury</li>
+            <li><b>Retention:</b> AnKing Anki (unsuspend relevant) + Custom cards from mistakes</li>
+            <li><b>PH-specific (no USMLE coverage):</b> Topnotch Legal Med, PrevMed, Parasitology + PLE Recalled</li>
+        </ul>
+    </div>
+
+    <div class="about-section">
+        <h3>🔒 The Three Non-Negotiables</h3>
+        <ul>
+            <li><b>Anki reviews daily</b> — before phone scrolling, every morning. Even on the worst days.</li>
+            <li><b>Monthly checkpoint tests</b> — 50 questions, scored, logged. This proves you're improving.</li>
+            <li><b>Legal Med + PrevMed + PH Parasitology get studied</b> — no one else preps these early. This is your secret weapon.</li>
+        </ul>
+    </div>
+
+    <div class="about-section">
+        <h3>📅 The 3 Phases</h3>
+        <ul>
+            <li><b style="color:var(--yellow);">Phase 1 — Clerkship (Feb 2026 → Jun 2026):</b> Build habits. First pass through 6 weak basic sciences. Ace June finals. 120-day Anki streak.</li>
+            <li><b style="color:var(--orange);">Phase 2 — Internship (Jul 2026 → Jun 2027):</b> Second pass all subjects. Monthly deep dives. Complete question banks. Case-to-card pipeline. 480-day streak.</li>
+            <li><b style="color:var(--red);">Phase 3 — Dedicated Review (Jul → Sep 2027):</b> Topnotch live review + personal study. Weekly practice PLE simulations. Peak to 92%+ average. 600-day streak.</li>
+        </ul>
+    </div>
+
+    <div class="about-section">
+        <h3>💪 The Philosophy</h3>
+        <div class="card2" style="text-align:center;padding:20px;">
+            <div style="font-size:16px;font-weight:800;color:var(--bright);">"Top 1 is not an intelligence test — it's a consistency test."</div>
+            <div style="font-size:11px;color:var(--dim);margin-top:6px;">The person who scores Top 1 isn't the one who studied the most in September 2027.<br>It's the one who studied a little bit every single day starting in February 2026.</div>
+        </div>
+    </div>
+
+    <div style="text-align:center;padding:20px;font-size:10px;color:var(--dim);">
+        Built with ☕ and determination.<br>
+        PLE October 2027. The streak starts now.
+    </div>
+</div>
+
+</div>
 
 <script>
-// ===================== DATA =====================
-const SCHEDULE = [
-    { week: 0, dates: 'Feb 25-28', rotation: 'Rehab', hours: '8-5 chill', t1: 'Rehab endorsement', t2: '—', t3: 'Legal Medicine', t3sub: 'Topnotch Ch.1-4', t3resources: ['topnotch','recalled'] },
-    { week: 1, dates: 'Mar 1-7', rotation: 'Ophtha', hours: '7-7 var', t1: 'Ophtha endorsement', t2: 'IM: Cardiology trans', t3: 'Legal Medicine (finish)', t3sub: 'Topnotch Ch.5-8 + Special Laws', t3resources: ['topnotch','recalled','ome'] },
-    { week: 2, dates: 'Mar 8-14', rotation: 'Ophtha', hours: '7-7 var', t1: 'Ophtha endorsement (finish)', t2: 'IM: Pulmo/GI trans', t3: 'Biochemistry pt.1', t3sub: 'BnB: Mol Bio → AAs → Carb Metab → Lipids', t3resources: ['bnb','fa','mehlman','pixorize','anking'] },
-    { week: 3, dates: 'Mar 15-21', rotation: 'ORL', hours: '7-7', t1: 'ORL endorsement', t2: 'Surgery: Trauma/Acute Abd', t3: 'Biochemistry pt.2 (finish)', t3sub: 'BnB: Lipoproteins → Urea → Vitamins → Genetics', t3resources: ['bnb','fa','mehlman','pixorize','anking'] },
-    { week: 4, dates: 'Mar 22-28', rotation: 'ORL', hours: '7-7', t1: 'ORL endorsement (finish)', t2: 'Surgery: Breast/Thyroid/GI', t3: 'Micro-Para pt.1', t3sub: 'Bacteriology: Gram+, Gram-, Spirochetes, TB', t3resources: ['sketchy','fa','mehlman','anking'] },
-    { week: 5, dates: 'Mar 29-Apr 4', rotation: '→ Pedia', hours: 'transition', t1: 'Pedia prep/orientation', t2: 'IM: Nephro/Endo trans', t3: 'Micro-Para pt.2 🇵🇭', t3sub: 'Virology, Mycology, PH PARASITOLOGY', t3resources: ['sketchy','topnotch','pixorize','anking','recalled'] },
-    { week: 6, dates: 'Apr 5-11', rotation: 'Pedia', hours: 'TBD', t1: 'Pedia: G&D, EPI, NBS', t2: '(Pedia IS the drip)', t3: 'Anatomy pt.1', t3sub: 'BnB: Cranial Nerves, Spinal Cord, Brachial Plexus', t3resources: ['bnb','fa','mehlman','anking'] },
-    { week: 7, dates: 'Apr 12-18', rotation: 'Pedia', hours: 'TBD', t1: 'Pedia: Infections, IMCI', t2: 'OB: Normal Preg/Labor + F1 check', t3: 'Anatomy pt.2 (finish)', t3sub: 'BnB: Thorax, Abdomen, H&N, Embryo, Histo', t3resources: ['bnb','fa','mehlman','anking'] },
-    { week: 8, dates: 'Apr 19-25', rotation: 'Pedia', hours: 'TBD', t1: 'Pedia: Emergencies, Nutrition', t2: 'OB: Complications/GYN', t3: 'Preventive Med pt.1', t3sub: 'Epi, Biostats (Sn/Sp/PPV/NPV, errors, bias)', t3resources: ['topnotch','mehlman','bnb','fa'] },
-    { week: 9, dates: 'Apr 26-30', rotation: 'Pedia', hours: 'TBD', t1: 'Pedia endorsement drill', t2: 'IM: Hema/ID trans', t3: 'Preventive Med pt.2 🇵🇭', t3sub: 'DOH: EPI, NTP, FP, MNCHN, PIDSR, Laws', t3resources: ['topnotch','recalled'] },
-    { week: 10, dates: 'May 1-9', rotation: 'Fam Med', hours: '50% chill', t1: 'Fam Med rotation', t2: 'Surgery: Uro/Vasc/Ortho + F2', t3: 'PrevMed finish → Pharm', t3sub: 'C5 + Pharm: BnB Autonomic→CV→Abx→CNS→Endo', t3resources: ['bnb','sketchy','fa','mehlman','anking'] },
-    { week: 11, dates: 'May 10-16', rotation: 'Fam Med', hours: 'BLITZ', t1: 'ENDORSEMENT BLITZ: IM→Surg→Pedia→OB', t2: '—', t3: 'C6 Pharm checkpoint', t3resources: ['trans','recalled','topnotch','superexam'] },
-    { week: 12, dates: 'May 17-24', rotation: 'Fam Med', hours: 'BLITZ', t1: 'BLITZ: Ophtha→ORL→Neuro→Anesth→Rehab→FM→extras', t2: '—', t3: 'Anki maintenance only', t3resources: ['trans','recalled'] },
-    { week: 13, dates: 'May 25-31', rotation: '—', hours: 'PREP', t1: 'REST (25th) → Practice Sims ×3 → Final review', t2: '—', t3: 'Anki maintenance only', t3resources: ['trans','recalled','superexam'] },
-    { week: 14, dates: 'Jun 1-7', rotation: '★ EXAMS', hours: '—', t1: '★ COMPREHENSIVE EXAM (300-500 items) Target: 85%+', t2: '—', t3: 'Anki reviews only', t3resources: [] },
-    { week: 15, dates: 'Jun 8-21', rotation: '★ EXAMS', hours: '—', t1: '★ Individual Finals (10 subjects, 1-2 day prep each)', t2: '—', t3: 'Anki reviews only', t3resources: [] }
-];
+const LS=localStorage,TD=new Date(),DK=TD.toISOString().split('T')[0];
+const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let calMonth=TD.getMonth(),calYear=TD.getFullYear();
 
-const CHECKPOINTS = [
-    { date: 'Feb 28', code: 'BL', type: 'basic', name: 'Baseline (Mixed)', qs: 50, target: '—', sources: 'PLE Recalled random' },
-    { date: 'Mar 7', code: 'C1', type: 'basic', name: 'Legal Medicine', qs: 50, target: '≥70%', sources: 'PLE Recalled + TN SuperExam' },
-    { date: 'Mar 21', code: 'C2', type: 'basic', name: 'Biochemistry', qs: 50, target: '≥70%', sources: 'PLE Recalled + Mehlman + SuperExam' },
-    { date: 'Apr 4', code: 'C3', type: 'basic', name: 'Micro & Parasitology', qs: 50, target: '≥68%', sources: 'PLE Recalled + SuperExam' },
-    { date: '~Apr 13', code: 'F1', type: 'clinical', name: 'IM (25) + Surgery (25)', qs: 50, target: '≥70%', sources: 'Endorsed Qs mixed' },
-    { date: 'Apr 18', code: 'C4', type: 'basic', name: 'Anatomy & Histology', qs: 50, target: '≥72%', sources: 'PLE Recalled + Mehlman + SuperExam' },
-    { date: '~May 4', code: 'F2', type: 'clinical', name: 'Pedia (25) + OB (25)', qs: 50, target: '≥70%', sources: 'Endorsed Qs mixed' },
-    { date: 'May 4', code: 'C5', type: 'basic', name: 'Preventive Medicine', qs: 50, target: '≥68%', sources: 'PLE Recalled + SuperExam' },
-    { date: 'May 11', code: 'C6', type: 'basic', name: 'Pharmacology', qs: 50, target: '≥72%', sources: 'PLE Recalled + Mehlman + SuperExam' },
-    { date: 'May 26', code: 'S1', type: 'sim', name: 'Practice Sim #1', qs: 100, target: '≥78%', sources: 'Endorsed + Recalled + SuperExam' },
-    { date: 'May 27', code: 'S2', type: 'sim', name: 'Practice Sim #2', qs: 100, target: '≥80%', sources: 'Endorsed + Recalled + SuperExam' },
-    { date: 'May 28', code: 'S3', type: 'sim', name: 'Practice Sim #3', qs: 100, target: '≥82%', sources: 'Endorsed + Recalled + SuperExam' },
-    { date: 'Jun 1-7', code: 'CE', type: 'exam', name: '★ Comprehensive Exam', qs: '300-500', target: '≥85%', sources: 'School Exam' },
-];
-
-const SUBJECTS = [
-    { name: 'Legal Medicine', icon: '⚖️', rating: 1, window: 'Feb 26 – Mar 7', cp: 'C1', target: '≥70%', resources: ['topnotch','recalled','ome'], note: 'No AnKing. All custom Anki. PH-specific only.' },
-    { name: 'Biochemistry', icon: '🧬', rating: 2, window: 'Mar 8 – 21', cp: 'C2', target: '≥70%', resources: ['bnb','fa','mehlman','pixorize','anking','recalled','superexam'], note: 'BnB is primary. Pixorize for vitamins + storage diseases.' },
-    { name: 'Micro & Para', icon: '🦠', rating: 2, window: 'Mar 22 – Apr 4', cp: 'C3', target: '≥68%', resources: ['sketchy','fa','topnotch','mehlman','pixorize','anking','recalled','superexam'], note: '🇵🇭 ~40% is Parasitology. Topnotch Para CRITICAL. 50 custom PH cards.' },
-    { name: 'Anatomy', icon: '🦴', rating: 3, window: 'Apr 5 – 18', cp: 'C4', target: '≥72%', resources: ['bnb','fa','mehlman','anking','recalled','superexam'], note: 'Mehlman Neuroanat PDF excellent. Heavy image occlusion Anki.' },
-    { name: 'Preventive Med', icon: '🏥', rating: 3, window: 'Apr 19 – May 4', cp: 'C5', target: '≥68%', resources: ['topnotch','mehlman','bnb','recalled','superexam'], note: '🇵🇭 ~80% PH-specific. No AnKing. All custom. Mehlman HY Biostats useful.' },
-    { name: 'Pharmacology', icon: '💊', rating: 6, window: 'May 5 – 11', cp: 'C6', target: '≥72%', resources: ['sketchy','bnb','fa','mehlman','anking','recalled','superexam'], note: 'Quick 7-day pass. Deep 2nd pass Dec 2026 during internship.' },
-];
-
-const RESOURCE_MAP = {
-    mehlman: { label: '🔴 Mehlman', class: 'tag-mehlman' },
-    topnotch: { label: '📘 Topnotch', class: 'tag-topnotch' },
-    superexam: { label: '🏆 SuperExam', class: 'tag-superexam' },
-    bnb: { label: '🎬 BnB', class: 'tag-bnb' },
-    ome: { label: '🎬 OME', class: 'tag-ome' },
-    sketchy: { label: '🎬 Sketchy', class: 'tag-sketchy' },
-    pixorize: { label: '🎨 Pixorize', class: 'tag-pixorize' },
-    anking: { label: '💜 AnKing', class: 'tag-anking' },
-    fa: { label: '📙 First Aid', class: 'tag-fa' },
-    trans: { label: '📄 Trans/Endorsed', class: 'tag-trans' },
-    recalled: { label: '📝 PLE Recalled', class: 'tag-recalled' }
-};
-
-// ===================== FUNCTIONS =====================
-const today = new Date();
-const todayStr = today.toISOString().split('T')[0];
-const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-function getDateKey() { return todayStr; }
-
-function showTab(name) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    event.target.classList.add('active');
-}
-
-// DATE DISPLAY
-document.getElementById('dateDisplay').textContent = 
-    `${dayNames[today.getDay()]}, ${monthNames[today.getMonth()]} ${today.getDate()}`;
-
-// DAYS TO PLE
-const pleDate = new Date('2027-10-04');
-const daysLeft = Math.ceil((pleDate - today) / (86400000));
-document.getElementById('daysVal').textContent = daysLeft;
+// NAV
+function go(t){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-i').forEach(x=>x.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');event.target.classList.add('active');}
 
 // STREAK
-let streak = parseInt(localStorage.getItem('streak') || '0');
-document.getElementById('streakVal').textContent = streak;
+let streak=+(LS.getItem('streak')||0);
+document.getElementById('sNum').textContent=streak;
+function addStreak(e){e.stopPropagation();streak++;LS.setItem('streak',streak);LS.setItem('lastDay',DK);document.getElementById('sNum').textContent=streak;document.getElementById('sNum').style.animation='none';requestAnimationFrame(()=>document.getElementById('sNum').style.animation='pulse .5s ease');}
 
-// TODAY'S SCHEDULE
-function getCurrentWeek() {
-    const start = new Date('2026-02-25');
-    const diffDays = Math.floor((today - start) / 86400000);
-    const weekNum = Math.floor(diffDays / 7);
-    for (let s of SCHEDULE) {
-        if (s.week === weekNum || (weekNum >= 6 && weekNum <= 7 && s.week === 6) ||
-            (weekNum >= 8 && weekNum <= 9 && s.week === 8)) return s;
-    }
-    return SCHEDULE[0];
-}
+// DAYS TO PLE
+const PLE=new Date('2027-10-04');
+document.getElementById('sDays').textContent=Math.ceil((PLE-TD)/864e5);
 
-function renderToday() {
-    const week = getCurrentWeek();
-    document.getElementById('todayTitle').textContent = dayNames[today.getDay()].toUpperCase();
-    document.getElementById('todaySub').textContent = `${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()} • Week ${week.week}`;
-    document.getElementById('todayRotation').textContent = `📍 ${week.rotation} (${week.hours})`;
+// TODAY HEADER
+document.getElementById('tdTitle').textContent=DN[TD.getDay()].toUpperCase();
+document.getElementById('tdSub').textContent=`${MN[TD.getMonth()]} ${TD.getDate()}, ${TD.getFullYear()}`;
 
-    document.getElementById('t1-study-text').textContent = `Study Block: ${week.t1}`;
-    document.getElementById('t2-drip-text').textContent = `Clinical Drip: ${week.t2}`;
-    document.getElementById('t3-block-text').textContent = `Evening Block: ${week.t3}`;
-    if (week.t3sub) {
-        document.getElementById('t3-block-detail').textContent = week.t3sub;
-    }
+// SCHEDULE DATA
+const SCHED={};
+function addS(d,t1,t2,t3){SCHED[d]={t1,t2,t3};}
+// Current: Ophtha rotation started Mar 1, currently still in rotation
+// Building schedule from Feb 25 onward
+const rot=(d)=>{
+    const dt=new Date(d);
+    if(dt<new Date('2026-03-01'))return{r:'Rehab',t2:'—',t3:'Legal Med'};
+    if(dt<new Date('2026-03-15'))return{r:'Ophtha',t2:'IM Cardio/Pulmo',t3:dt<new Date('2026-03-08')?'Legal Med':'Biochemistry'};
+    if(dt<new Date('2026-03-29'))return{r:'ORL',t2:'Surgery Trauma/GI',t3:dt<new Date('2026-03-22')?'Biochemistry':'Micro-Para'};
+    if(dt<new Date('2026-05-01'))return{r:'Pedia',t2:dt<new Date('2026-04-12')?'(Pedia=T1)':dt<new Date('2026-04-26')?'OB-GYN':'IM Hema/ID',t3:dt<new Date('2026-04-05')?'Micro-Para 🇵🇭':dt<new Date('2026-04-19')?'Anatomy':'Preventive Med 🇵🇭'};
+    if(dt<new Date('2026-06-01'))return{r:'Fam Med',t2:dt<new Date('2026-05-10')?'Surgery Uro/Vasc':'ENDORSEMENT BLITZ',t3:dt<new Date('2026-05-05')?'Prev Med':dt<new Date('2026-05-12')?'Pharmacology':'Anki maintenance'};
+    if(dt<new Date('2026-06-08'))return{r:'★ COMP EXAM',t2:'—',t3:'—'};
+    if(dt<new Date('2026-06-22'))return{r:'★ FINALS',t2:'—',t3:'—'};
+    return{r:'—',t2:'—',t3:'—'};
+};
 
-    // Resources
-    const t3Res = document.getElementById('t3-resources');
-    t3Res.innerHTML = '';
-    if (week.t3resources) {
-        week.t3resources.forEach(r => {
-            if (RESOURCE_MAP[r]) {
-                t3Res.innerHTML += `<span class="resource-tag ${RESOURCE_MAP[r].class}">${RESOURCE_MAP[r].label}</span>`;
-            }
-        });
-    }
+// Set today's display
+const todayRot=rot(DK);
+document.getElementById('tdRot').textContent='📍 '+todayRot.r;
+document.getElementById('tdDrip').textContent='💧 '+todayRot.t2;
+document.getElementById('tdBasic').textContent='🧬 '+todayRot.t3;
 
-    // Load saved state
-    loadDailyState();
-}
+// LEVEL
+function pickLvl(l,el){document.querySelectorAll('.lvl').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');LS.setItem('lvl-'+DK,l);}
+const savedLvl=LS.getItem('lvl-'+DK);if(savedLvl)document.querySelectorAll('.lvl')[savedLvl-1]?.classList.add('sel');
 
-// LEVEL SELECTOR
-function selectLevel(level, el) {
-    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
-    el.classList.add('selected');
-    localStorage.setItem('level-' + todayStr, level);
-}
-
-// DAILY CHECKBOXES
-function updateDaily() {
-    const checks = document.querySelectorAll('#tab-today .check-box');
-    const total = checks.length;
-    let done = 0;
-    const state = {};
-    checks.forEach((cb, i) => {
-        if (cb.checked) done++;
-        state[i] = cb.checked;
-        cb.closest('.check-item').classList.toggle('done', cb.checked);
+// CHECKLIST
+function upd(){
+    document.querySelectorAll('.cl-item').forEach(item=>{
+        const cb=item.querySelector('.cl-box');
+        item.classList.toggle('done',cb.checked);
     });
-    localStorage.setItem('checks-' + todayStr, JSON.stringify(state));
-
-    // Update progress displays
-    const nn = document.querySelectorAll('#tab-today .checklist-section');
-    nn.forEach(section => {
-        const sChecks = section.querySelectorAll('.check-box');
-        const sDone = Array.from(sChecks).filter(c => c.checked).length;
-        const prog = section.querySelector('[id$="Progress"]');
-        if (prog) prog.textContent = `${sDone}/${sChecks.length}`;
+    ['nn','t1','t2','t3'].forEach(g=>{
+        const cbs=document.querySelectorAll(`.cl-box[data-g="${g}"]`);
+        const done=Array.from(cbs).filter(c=>c.checked).length;
+        const el=document.getElementById(g==='nn'?'nnP':g+'P');
+        if(el)el.textContent=`${done}/${cbs.length}`;
     });
-
-    const pct = Math.round((done / total) * 100);
-    document.getElementById('todayPct').textContent = pct + '%';
-    document.getElementById('todayPct').style.color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--orange)' : 'var(--red)';
+    const all=document.querySelectorAll('#tab-today .cl-box');
+    const total=all.length,done=Array.from(all).filter(c=>c.checked).length;
+    const pct=Math.round(done/total*100);
+    document.getElementById('sPct').textContent=pct+'%';
+    document.getElementById('sPct').style.color=pct>=80?'var(--green)':pct>=50?'var(--orange)':'var(--red)';
+    // Save
+    const state={};all.forEach((c,i)=>state[i]=c.checked);
+    LS.setItem('ck-'+DK,JSON.stringify(state));
 }
+// Load
+const savedCk=JSON.parse(LS.getItem('ck-'+DK)||'{}');
+document.querySelectorAll('#tab-today .cl-box').forEach((cb,i)=>{cb.checked=!!savedCk[i];});
+upd();
 
-function loadDailyState() {
-    const saved = JSON.parse(localStorage.getItem('checks-' + todayStr) || '{}');
-    const checks = document.querySelectorAll('#tab-today .check-box');
-    checks.forEach((cb, i) => {
-        cb.checked = saved[i] || false;
-        cb.closest('.check-item').classList.toggle('done', cb.checked);
-    });
+// QUICK STATS
+function saveQ(el){LS.setItem(el.id+'-'+DK,el.value);}
+['qR','qN','qA','qB','qS'].forEach(id=>{const v=LS.getItem(id+'-'+DK);if(v)document.getElementById(id).value=v;});
+const savedNotes=LS.getItem('n-'+DK);if(savedNotes)document.getElementById('notes').value=savedNotes;
 
-    const level = localStorage.getItem('level-' + todayStr);
-    if (level) {
-        document.querySelectorAll('.level-btn')[parseInt(level) - 1]?.classList.add('selected');
-    }
+// EXERCISE
+function pickEx(el,t){document.querySelectorAll('.ex-btn').forEach(b=>{b.classList.remove('active');b.classList.add('btn-g');});el.classList.add('active');el.classList.remove('btn-g');LS.setItem('ex-'+DK,t);}
+const savedEx=LS.getItem('ex-'+DK);if(savedEx)document.querySelectorAll('.ex-btn').forEach(b=>{if(b.textContent.includes(savedEx)){b.classList.add('active');b.classList.remove('btn-g');}});
 
-    // Quick stats
-    ['ankiReviews','ankiNew','ankiPercent','studyBlocks','sleepHrs'].forEach(id => {
-        const val = localStorage.getItem(id + '-' + todayStr);
-        if (val) document.getElementById(id).value = val;
-    });
-
-    const notes = localStorage.getItem('notes-' + todayStr);
-    if (notes) document.getElementById('dailyNotes').value = notes;
-
-    const exercise = localStorage.getItem('exercise-' + todayStr);
-    if (exercise) {
-        document.querySelectorAll('.exercise-btn').forEach(btn => {
-            if (btn.textContent.includes(exercise)) btn.classList.add('btn-primary');
-        });
-    }
-
-    updateDaily();
-}
-
-function saveQuickStat(el) {
-    localStorage.setItem(el.id + '-' + todayStr, el.value);
-}
-
-function saveDailyNotes() {
-    localStorage.setItem('notes-' + todayStr, document.getElementById('dailyNotes').value);
-}
-
-function toggleExercise(el, type) {
-    document.querySelectorAll('.exercise-btn').forEach(b => { b.classList.remove('btn-primary'); b.classList.add('btn-ghost'); });
-    el.classList.remove('btn-ghost');
-    el.classList.add('btn-primary');
-    localStorage.setItem('exercise-' + todayStr, type);
-}
-
-function completeDay() {
-    const ankiDone = document.querySelector('#ci-anki-review .check-box').checked;
-    if (ankiDone) {
-        const lastDay = localStorage.getItem('lastStreakDay');
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-        if (lastDay === todayStr) {
-            // Already logged today
-        } else if (lastDay === yesterdayStr || !lastDay) {
-            streak++;
-        } else {
-            streak = 1; // Reset
+// END DAY
+function endDay(){
+    const ankiDone=document.querySelector('.cl-box[data-g="nn"]').checked;
+    if(ankiDone){
+        const last=LS.getItem('lastDay');
+        const yday=new Date(TD);yday.setDate(yday.getDate()-1);
+        const ydayStr=yday.toISOString().split('T')[0];
+        if(last!==DK){
+            if(last===ydayStr||!last)streak++;else streak=1;
+            LS.setItem('streak',streak);LS.setItem('lastDay',DK);
+            document.getElementById('sNum').textContent=streak;
         }
-        localStorage.setItem('streak', streak);
-        localStorage.setItem('lastStreakDay', todayStr);
-        document.getElementById('streakVal').textContent = streak;
     }
-
-    // Save level to history
-    const level = localStorage.getItem('level-' + todayStr) || '0';
-    const history = JSON.parse(localStorage.getItem('dayHistory') || '{}');
-    history[todayStr] = {
-        level: parseInt(level),
-        blocks: parseInt(document.getElementById('studyBlocks').value || '0'),
-        anki: parseInt(document.getElementById('ankiNew').value || '0')
-    };
-    localStorage.setItem('dayHistory', JSON.stringify(history));
-
-    document.getElementById('completeDayBtn').textContent = '✅ Day Logged!';
-    document.getElementById('completeDayBtn').style.background = 'var(--green)';
-    setTimeout(() => {
-        document.getElementById('completeDayBtn').textContent = '✅ Complete Day & Log Streak';
-        document.getElementById('completeDayBtn').style.background = '';
-    }, 2000);
-
-    renderHistory();
-    renderWeekDots();
+    const hist=JSON.parse(LS.getItem('hist')||'{}');
+    hist[DK]={l:+(LS.getItem('lvl-'+DK)||0),b:+(document.getElementById('qB').value||0),c:+(document.getElementById('qN').value||0)};
+    LS.setItem('hist',JSON.stringify(hist));
+    const btn=document.getElementById('endBtn');btn.textContent='✅ Day Logged!';btn.style.background='var(--green)';
+    setTimeout(()=>{btn.textContent='✅ Complete Day & Log Streak';btn.style.background='';},2000);
+    renderHeat();renderWkDots();
 }
 
 // WEEK DOTS
-function renderWeekDots() {
-    const container = document.getElementById('weekDots');
-    container.innerHTML = '';
-    const history = JSON.parse(localStorage.getItem('dayHistory') || '{}');
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
-
-    let doneCount = 0;
-    for (let i = 0; i < 7; i++) {
-        const d = new Date(startOfWeek);
-        d.setDate(d.getDate() + i);
-        const ds = d.toISOString().split('T')[0];
-        const isToday = ds === todayStr;
-        const data = history[ds];
-        let cls = 'week-day';
-        if (isToday) cls += ' today';
-        else if (data && data.level >= 2) { cls += ' done'; doneCount++; }
-        container.innerHTML += `<div class="${cls}"></div>`;
+function renderWkDots(){
+    const c=document.getElementById('wkDots');c.innerHTML='';
+    const hist=JSON.parse(LS.getItem('hist')||'{}');
+    const mon=new Date(TD);mon.setDate(TD.getDate()-TD.getDay()+1);
+    let done=0;
+    for(let i=0;i<7;i++){
+        const d=new Date(mon);d.setDate(d.getDate()+i);
+        const ds=d.toISOString().split('T')[0];
+        const isToday=ds===DK;
+        const data=hist[ds];
+        let cls='wk-dot';
+        if(isToday)cls+=' today';
+        else if(data&&data.l>=2){cls+=' done';done++;}
+        c.innerHTML+=`<div class="${cls}"></div>`;
     }
-    document.getElementById('weekScore').textContent = `${doneCount}/7 at L2+`;
+    document.getElementById('wkScore').textContent=`${done}/7 at L2+`;
 }
+renderWkDots();
 
-// WEEK TAB
-function renderWeekTab() {
-    const week = getCurrentWeek();
-    document.getElementById('weekTitle').textContent = `Week ${week.week} — ${week.rotation}`;
-    document.getElementById('weekSubtitle').textContent = `${week.dates} • ${week.hours}`;
+// ====== CALENDAR ======
+const CHECKPOINTS_DATA=['2026-02-28','2026-03-07','2026-03-21','2026-04-04','2026-04-13','2026-04-18','2026-05-04','2026-05-04','2026-05-11','2026-05-26','2026-05-27','2026-05-28'];
+const CP_NAMES={'2026-02-28':'BL Mixed','2026-03-07':'C1 LegMed','2026-03-21':'C2 Biochem','2026-04-04':'C3 Micro','2026-04-13':'F1 IM+Surg','2026-04-18':'C4 Anatomy','2026-05-04':'C5 PrevMed / F2','2026-05-11':'C6 Pharm','2026-05-26':'Sim #1','2026-05-27':'Sim #2','2026-05-28':'Sim #3'};
+const EXAM_DAYS=['2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07'];
 
-    const container = document.getElementById('weekSchedule');
-    container.innerHTML = '';
+let dragData=null;
 
-    // T1
-    container.innerHTML += `
-        <div class="schedule-card">
-            <h3><span style="color:var(--t1);">🔴 TIER 1:</span> ${week.t1}</h3>
-            <div class="schedule-row"><div class="tier-dot" style="background:var(--t1);"></div><span>Resources:</span>
-                <span class="resource-tag tag-trans">📄 Endorsement Qs</span>
-                <span class="resource-tag tag-trans">📄 Transcription</span>
-                <span class="resource-tag tag-trans">📄 Prior Exams ×3</span>
-            </div>
-        </div>`;
-
-    // T2
-    if (week.t2 !== '—' && !week.t2.includes('IS the drip')) {
-        container.innerHTML += `
-            <div class="schedule-card">
-                <h3><span style="color:var(--t2);">🔵 TIER 2:</span> ${week.t2}</h3>
-                <div class="schedule-row"><div class="tier-dot" style="background:var(--t2);"></div><span>15-20 min/day: Read 3-4 trans pages OR do 10 endorsed Qs</span></div>
-            </div>`;
-    }
-
-    // T3
-    container.innerHTML += `
-        <div class="schedule-card">
-            <h3><span style="color:var(--t3);">🟣 TIER 3:</span> ${week.t3}</h3>
-            ${week.t3sub ? `<div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">${week.t3sub}</div>` : ''}
-            <div class="schedule-row"><div class="tier-dot" style="background:var(--t3);"></div><span>Resources:</span>
-                ${(week.t3resources||[]).map(r => RESOURCE_MAP[r] ? `<span class="resource-tag ${RESOURCE_MAP[r].class}">${RESOURCE_MAP[r].label}</span>` : '').join('')}
-            </div>
-        </div>`;
-}
-
-// SUBJECTS TAB
-function renderSubjects() {
-    const container = document.getElementById('subjectsList');
-    container.innerHTML = '';
-    SUBJECTS.forEach(s => {
-        const ratingClass = s.rating <= 3 ? 'rating-low' : s.rating <= 6 ? 'rating-med' : 'rating-high';
-        const score = localStorage.getItem('cp-score-' + s.cp) || '';
-        container.innerHTML += `
-            <div class="card" style="border-left:3px solid ${s.rating <= 3 ? 'var(--red)' : s.rating <= 6 ? 'var(--orange)' : 'var(--green)'};">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="font-size:24px;">${s.icon}</div>
-                    <div style="flex:1;">
-                        <div style="font-size:14px;font-weight:700;">${s.name}</div>
-                        <div style="font-size:10px;color:var(--text-dim);">${s.window} • Checkpoint ${s.cp}: ${s.target}</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:18px;font-weight:800;color:${s.rating <= 3 ? 'var(--red)' : 'var(--orange)'};">${s.rating}/10</div>
-                        <div style="font-size:8px;color:var(--text-dim);">SELF RATING</div>
-                    </div>
-                    ${score ? `<div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--green);">${score}</div><div style="font-size:8px;color:var(--text-dim);">CP SCORE</div></div>` : ''}
-                </div>
-                <div style="margin-top:8px;">
-                    ${s.resources.map(r => RESOURCE_MAP[r] ? `<span class="resource-tag ${RESOURCE_MAP[r].class}">${RESOURCE_MAP[r].label}</span>` : '').join('')}
-                </div>
-                <div style="font-size:10px;color:var(--text-dim);margin-top:4px;">${s.note}</div>
-            </div>`;
+function renderCal(){
+    const grid=document.getElementById('calGrid');
+    grid.innerHTML='';
+    document.getElementById('calTitle').textContent=MN[calMonth]+' '+calYear;
+    
+    ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d=>{
+        grid.innerHTML+=`<div class="cal-day-header">${d}</div>`;
     });
-}
 
-// CHECKPOINTS TAB
-function renderCheckpoints() {
-    const container = document.getElementById('checkpointsList');
-    container.innerHTML = '';
-    CHECKPOINTS.forEach(cp => {
-        const typeClass = cp.type === 'basic' ? 'type-basic' : cp.type === 'clinical' ? 'type-clinical' : cp.type === 'sim' ? 'type-sim' : 'type-exam';
-        const saved = localStorage.getItem('cp-score-' + cp.code) || '';
-        container.innerHTML += `
-            <div class="card" style="display:flex;align-items:center;gap:12px;padding:10px 14px;${cp.type === 'exam' ? 'border-left:3px solid var(--red);background:rgba(255,107,107,0.03);' : ''}">
-                <div style="min-width:60px;font-size:11px;font-weight:700;color:var(--text-dim);">${cp.date}</div>
-                <span style="padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700;text-transform:uppercase;" class="${typeClass}">${cp.code}</span>
-                <div style="flex:1;">
-                    <div style="font-size:12px;font-weight:600;">${cp.name}</div>
-                    <div style="font-size:9px;color:var(--text-dim);">${cp.qs} Qs • ${cp.sources}</div>
-                </div>
-                <div style="font-size:14px;font-weight:800;color:var(--green);min-width:50px;text-align:right;">${cp.target}</div>
-                <input type="text" value="${saved}" placeholder="__%" 
-                    onchange="localStorage.setItem('cp-score-${cp.code}',this.value)"
-                    style="width:55px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;font-weight:700;color:var(--text-bright);text-align:center;font-family:inherit;">
-            </div>`;
-    });
-}
+    const first=new Date(calYear,calMonth,1);
+    let startDay=(first.getDay()+6)%7;
+    const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+    
+    // Custom schedule overrides
+    const customSched=JSON.parse(LS.getItem('calCustom')||'{}');
 
-// HISTORY TAB
-function renderHistory() {
-    const grid = document.getElementById('historyGrid');
-    grid.innerHTML = '';
-    const history = JSON.parse(localStorage.getItem('dayHistory') || '{}');
-    const start = new Date('2026-02-25');
-    const end = new Date('2026-06-21');
+    for(let i=0;i<startDay;i++)grid.innerHTML+=`<div class="cal-cell" style="opacity:.2;"></div>`;
 
-    let totalBlocks = 0, totalCards = 0, totalL2 = 0;
+    for(let d=1;d<=daysInMonth;d++){
+        const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isToday=ds===DK;
+        const isPast=new Date(ds)<new Date(DK);
+        const isCp=CHECKPOINTS_DATA.includes(ds);
+        const isExam=EXAM_DAYS.includes(ds);
+        
+        const schedule=customSched[ds]||rot(ds);
+        
+        let cls='cal-cell';
+        if(isToday)cls+=' today';
+        if(isPast)cls+=' past';
+        if(isCp)cls+=' checkpoint';
+        if(isExam)cls+=' exam-day';
 
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const ds = d.toISOString().split('T')[0];
-        const data = history[ds];
-        let cls = 'history-cell';
-        if (ds === todayStr) cls += ' today-cell';
-        if (data) {
-            if (data.level >= 4) cls += ' l4';
-            else if (data.level >= 3) cls += ' l3';
-            else if (data.level >= 2) cls += ' l2';
-            else cls += ' l1';
-            totalBlocks += data.blocks || 0;
-            totalCards += data.anki || 0;
-            if (data.level >= 2) totalL2++;
+        let blocks='';
+        if(schedule.r&&schedule.r!=='—'){
+            const blockCls=isExam?'exam-block':'t1-block';
+            blocks+=`<div class="cal-block ${blockCls}" draggable="true" ondragstart="dragStart(event,'${ds}','t1')" data-day="${ds}" data-tier="t1">${schedule.r}</div>`;
         }
-        const day = d.getDate();
-        grid.innerHTML += `<div class="${cls}" title="${ds}">${day}</div>`;
-    }
+        if(schedule.t2&&schedule.t2!=='—'&&!schedule.t2.includes('IS')){
+            blocks+=`<div class="cal-block t2-block" draggable="true" ondragstart="dragStart(event,'${ds}','t2')" data-day="${ds}" data-tier="t2">${schedule.t2}</div>`;
+        }
+        if(schedule.t3&&schedule.t3!=='—'){
+            blocks+=`<div class="cal-block t3-block" draggable="true" ondragstart="dragStart(event,'${ds}','t3')" data-day="${ds}" data-tier="t3">${schedule.t3}</div>`;
+        }
+        if(isCp){
+            blocks+=`<div class="cal-block cp-block">🧪 ${CP_NAMES[ds]||'Check'}</div>`;
+        }
 
-    document.getElementById('totalBlocks').textContent = totalBlocks;
-    document.getElementById('totalCards').textContent = totalCards;
-    document.getElementById('totalL2').textContent = totalL2;
-    document.getElementById('totalCases').textContent = localStorage.getItem('totalCases') || '0';
+        grid.innerHTML+=`<div class="${cls}" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event,'${ds}')"><div class="cal-date">${d}</div>${blocks}</div>`;
+    }
 }
 
-// ===================== INIT =====================
-renderToday();
-renderWeekDots();
-renderWeekTab();
-renderSubjects();
-renderCheckpoints();
-renderHistory();
-</script>
+function dragStart(e,day,tier){
+    dragData={day,tier};
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed='move';
+}
+function dragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function dragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function drop(e,targetDay){
+    e.preventDefault();e.currentTarget.classList.remove('drag-over');
+    if(!dragData)return;
+    
+    const custom=JSON.parse(LS.getItem('calCustom')||'{}');
+    const srcSched=custom[dragData.day]||rot(dragData.day);
+    const tgtSched=custom[targetDay]||rot(targetDay);
+    
+    // Swap the tier content
+    if(!custom[targetDay])custom[targetDay]={...tgtSched};
+    if(!custom[dragData.day])custom[dragData.day]={...srcSched};
+    
+    const tierMap={t1:'r',t2:'t2',t3:'t3'};
+    const field=tierMap[dragData.tier];
+    const srcVal=srcSched[field];
+    
+    custom[targetDay][field]=srcVal;
+    
+    LS.setItem('calCustom',JSON.stringify(custom));
+    dragData=null;
+    renderCal();
+}
 
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCal();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCal();}
+
+// Set calendar to current month
+calMonth=TD.getMonth();calYear=TD.getFullYear();
+renderCal();
+
+// ====== SUBJECTS ======
+const SUBJS=[
+    {n:'Legal Medicine',i:'⚖️',r:1,t:'basic',w:'Feb 26–Mar 7',cp:'C1 ≥70%',res:['📘 Topnotch LegMed (PRIMARY — cover to cover)','📝 PLE Recalled (3 years — themes repeat)','🎬 OME Ethics (bioethics overview)','🔴 Mehlman Medical Ethics (supplement)'],note:'⚠️ No AnKing. No BnB. No Sketchy. 100% PLE-specific. All Anki cards custom.',topics:['Death & Death Investigation','Signs of Death (rigor/livor/algor)','Physical Injuries Classification','Sexual Crimes (RA 11648)','Toxicology + RA 9165','Personal Identification','Med Jurisprudence (malpractice, consent)','Medical Ethics (4 principles)','Special Laws (RA 7610, 9262, 11166)']},
+    {n:'Biochemistry',i:'🧬',r:2,t:'basic',w:'Mar 8–21',cp:'C2 ≥70%',res:['🎬 BnB Biochem (PRIMARY — all videos)','📙 First Aid Biochem (annotate)','🔴 Mehlman HY Biochem + Arrows (rapid review)','🎨 Pixorize (vitamins, storage diseases)','📗 MRS Biochem (quick framework if lost)','💜 AnKing Biochem tags','📝 PLE Recalled','🏆 TN SuperExam'],note:'BnB → First Aid → Mehlman review → Pixorize for visuals → AnKing unsuspend',topics:['DNA Replication/Transcription/Translation','Cell Cycle + Cancer Genetics','Amino Acids + Enzyme Kinetics','Glycolysis/Gluconeogenesis/TCA','Glycogen Storage Diseases + PPP','FA Synthesis/β-Oxidation/Ketones','Lipoproteins + Dyslipidemias','Urea Cycle + Inborn Errors','Vitamins Fat-soluble (A,D,E,K)','Vitamins Water-soluble (B,C,Folate)','Genetics + Lysosomal Storage Dz']},
+    {n:'Micro & Parasitology',i:'🦠',r:2,t:'basic',w:'Mar 22–Apr 4',cp:'C3 ≥68%',res:['📗 Micro Made Ridiculously Simple (read FIRST for framework)','🎬 Sketchy Micro (PRIMARY for bacteria/viruses)','📙 First Aid Micro (reference)','🔴 Mehlman HY Micro (rapid review)','📘 Topnotch Parasitology 🇵🇭 (CRITICAL for PH parasites)','🎨 Pixorize Micro (parasitology visuals)','💜 AnKing Micro','📝 PLE Recalled (parasite Qs repeat heavily)'],note:'🇵🇭 ~40% is Parasitology. MRS first → Sketchy → First Aid → Topnotch Para → Custom PH cards',topics:['Gram+ Cocci (Staph, Strep)','Gram+ Rods (Clostridium, Coryne)','Gram- (Neisseria, E.coli, Salmonella)','Spirochetes + Mycobacteria + Atypicals','DNA Viruses','RNA Viruses (Dengue🇵🇭, Rabies🇵🇭)','Mycology','🇵🇭 Protozoa (Plasmodium, Entamoeba)','🇵🇭 Nematodes (Ascaris, Wuchereria)','🇵🇭 Trematodes (Schistosoma japonicum)','🇵🇭 Cestodes + Capillaria philippinensis']},
+    {n:'Anatomy & Histology',i:'🦴',r:3,t:'basic',w:'Apr 5–18',cp:'C4 ≥72%',res:['🎬 BnB Anatomy (PRIMARY)','📙 First Aid Anatomy','🔴 Mehlman HY Anatomy + HY Neuroanat','📗 Clinical Anatomy MRS (quick spatial framework)','💜 AnKing Anatomy (image occlusion heavy)','📝 PLE Recalled','🏆 TN SuperExam'],note:'Mehlman Neuroanat is excellent after BnB. Heavy image-based Anki.',topics:['Cranial Nerves I-XII','Brain Vasculature + Stroke Syndromes','Spinal Cord Tracts + Lesions','Brachial Plexus + UE Nerves','LE Nerves + Compartments','Thorax (heart, coronary arteries)','Abdomen (peritoneum, GI blood supply)','Head & Neck + Embryology','Histology']},
+    {n:'Preventive Medicine',i:'🏥',r:3,t:'basic',w:'Apr 19–May 4',cp:'C5 ≥68%',res:['📘 Topnotch PrevMed (PRIMARY — PH-specific BIBLE)','🔴 Mehlman HY Biostats (excellent for epi/biostats)','🎬 BnB Biostats (conceptual understanding)','📙 First Aid Biostats (quick reference)','📝 PLE Recalled (DOH program Qs repeat heavily)','🏆 TN SuperExam'],note:'🇵🇭 ~80% PH-specific. No AnKing. All custom cards. Mehlman HY Biostats is great for concepts.',topics:['Epidemiology (incidence, prevalence, study designs)','Measures of Association (RR, OR, NNT)','Biostatistics (Sn, Sp, PPV, NPV)','Bias + Confounding + Error types','🇵🇭 EPI Immunization Schedule','🇵🇭 NTP (DOTS)','🇵🇭 FP, MNCHN, PhilHealth, PIDSR','🇵🇭 Key Laws (UHC, Mental Health, NBS)','Levels of Prevention','Environmental/Occupational Health']},
+    {n:'Pharmacology',i:'💊',r:6,t:'basic',w:'May 5–11',cp:'C6 ≥72%',res:['🎬 Sketchy Pharm (PRIMARY — visual drug memory)','🎬 BnB Pharm (MOA understanding)','📗 Pharm MRS (quick drug class overview)','🔴 Mehlman HY Pharm + Arrows (rapid review)','📙 First Aid Pharm','💜 AnKing Pharm (Sketchy-tagged)','📝 PLE Recalled','🏆 TN SuperExam'],note:'Quick 7-day pass. Deep 2nd pass during internship Dec 2026.',topics:['Autonomic Pharmacology','CV Drugs','Antibiotics (DOC per bug)','CNS Drugs','Endocrine Drugs','Toxicology Antidotes']},
+    {n:'Physiology',i:'⚡',r:6,t:'basic',w:'Internship Jan 2027',cp:'Deep pass',res:['🎬 BnB Physio (PRIMARY)','🔴 Mehlman HY Physio + Arrows','📙 First Aid Physio','💜 AnKing Physio','📘 Topnotch Physio','🏆 SuperExam'],note:'Not in clerkship first pass. Deep dive during internship.',topics:['Cardiac Physiology','Respiratory Physiology','Renal Physiology','Acid-Base','Endocrine Axes','Neurophysiology','GI Physiology']},
+    {n:'Pathology',i:'🔬',r:7,t:'basic',w:'Internship Feb 2027',cp:'Deep pass',res:['🎬 BnB Path / Pathoma (PRIMARY)','🔴 Mehlman HY Path + Arrows','📙 First Aid Path','💜 AnKing Path','📘 Topnotch Path','🏆 SuperExam'],note:'Your strongest basic science. Target 95%+ on PLE.',topics:['General Pathology','Hematopathology','Immunopathology','Organ System Path']},
+    {n:'Internal Medicine',i:'🫀',r:7,t:'clinical',w:'Clinical Drip + Internship',cp:'≥90%',res:['📘 Topnotch IM (PLE review)','📖 Harrison\'s (reference for deep topics)','🔴 Mehlman HY IM','🎬 OME IM (clinical overviews)','📄 IM Transcriptions + Prior Exams','📝 PLE Recalled','🏆 SuperExam'],note:'🇵🇭 PH CPGs tested: HTN, DM, TB, Dengue. Harrison\'s for reference, not cover-to-cover.',topics:['Cardiology','Pulmonology','GI/Hepatology','Nephrology','Endocrinology','Hematology/Oncology','Infectious Disease','Rheumatology']},
+    {n:'Surgery',i:'🔪',r:7,t:'clinical',w:'Clinical Drip + Internship',cp:'≥90%',res:['📘 Topnotch Surgery','📖 Schwartz\'s (reference)','🔴 Mehlman HY Surgery','🎬 OME Surgery','📄 Surgery Trans + Prior Exams','📝 PLE Recalled','🏆 SuperExam'],note:'Schwartz for surgical decision-making questions. Focus on indications.',topics:['Trauma (ATLS)','Acute Abdomen','Breast + Thyroid','Colorectal + HPB','Vascular + Urology','Orthopedics']},
+    {n:'Pediatrics',i:'👶',r:4,t:'clinical',w:'Rotation Apr + Internship',cp:'≥85%',res:['📘 Topnotch Pedia','📖 Nelson\'s (reference)','🔴 Mehlman HY Pedia','🎬 OME Pedia','📄 Pedia Trans + Prior Exams','📝 PLE Recalled','🏆 SuperExam'],note:'🇵🇭 EPI schedule, IMCI, NBS (RA 9288) heavily tested.',topics:['Growth & Development','🇵🇭 EPI Immunization','Newborn Screening','Neonatology','Common Infections','Pedia Emergencies','Nutrition']},
+    {n:'OB-Gyn',i:'🤰',r:4,t:'clinical',w:'Clinical Drip + Internship',cp:'≥85%',res:['📘 Topnotch OB','📖 Williams Obstetrics (reference)','🔴 Mehlman HY OB','🎬 OME OB-Gyn','📄 OB Trans + Prior Exams','📝 PLE Recalled','🏆 SuperExam'],note:'Williams for OB complications. POGS CPGs tested.',topics:['Normal Pregnancy + Labor','Pre-eclampsia/Eclampsia','GDM + Placental Abnormalities','PPH + Postpartum','Contraception','GYN Cancers','AUB + Infertility']}
+];
+
+function renderSubjs(filter='all'){
+    const c=document.getElementById('subjList');c.innerHTML='';
+    SUBJS.filter(s=>{
+        if(filter==='all')return true;
+        if(filter==='weak')return s.r<=3;
+        if(filter==='mid')return s.r>=4&&s.r<=6;
+        if(filter==='strong')return s.r>=7;
+        if(filter==='basic')return s.t==='basic';
+        if(filter==='clinical')return s.t==='clinical';
+        return true;
+    }).forEach(s=>{
+        const rc=s.r<=3?'r-lo':s.r<=6?'r-md':'r-hi';
+        const topicsHTML=s.topics.map(t=>`<label style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:rgba(255,255,255,.02);border-radius:5px;font-size:10px;cursor:pointer;margin-bottom:3px;"><input type="checkbox" class="cl-box" style="width:14px;height:14px;border-radius:3px;" onchange="this.parentElement.style.opacity=this.checked?.4:1"><span>${t}</span></label>`).join('');
+        c.innerHTML+=`
+        <div class="subj" onclick="this.classList.toggle('open')">
+            <div class="subj-h">
+                <div class="subj-icon" style="background:rgba(255,255,255,.04);">${s.i}</div>
+                <div class="subj-info"><div class="subj-name">${s.n}</div><div class="subj-meta">${s.w} • ${s.cp}</div></div>
+                <div class="subj-r ${rc}">${s.r}</div>
+                <span class="subj-arrow">▼</span>
+            </div>
+            <div class="subj-body">
+                <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;margin-bottom:4px;">Resources (in order of use):</div>
+                <div style="margin-bottom:8px;">${s.res.map(r=>`<div style="font-size:10px;padding:2px 0;">→ ${r}</div>`).join('')}</div>
+                ${s.note?`<div class="alert alert-w" style="margin:6px 0;"><span>💡</span><div>${s.note}</div></div>`:''}
+                <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;margin:8px 0 4px;">Topics (check off as completed):</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">${topicsHTML}</div>
+            </div>
+        </div>`;
+    });
+}
+
+// Filters
+const filtersEl=document.getElementById('subjFilters');
+['All','Weak (1-3)','Mid (4-6)','Strong (7+)','Basic Sci','Clinical'].forEach((label,i)=>{
+    const vals=['all','weak','mid','strong','basic','clinical'];
+    filtersEl.innerHTML+=`<button class="btn btn-g btn-sm ${i===0?'active':''}" onclick="document.querySelectorAll('#subjFilters .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderSubjs('${vals[i]}')">${label}</button>`;
+});
+renderSubjs();
+
+// ====== CHECKPOINTS ======
+const CPS=[
+    {d:'Feb 28',c:'BL',t:'basic',n:'Baseline Mixed',q:50,tgt:'—',s:'PLE Recalled random'},
+    {d:'Mar 7',c:'C1',t:'basic',n:'Legal Medicine',q:50,tgt:'≥70%',s:'Recalled + SuperExam'},
+    {d:'Mar 21',c:'C2',t:'basic',n:'Biochemistry',q:50,tgt:'≥70%',s:'Recalled + Mehlman + SuperExam'},
+    {d:'Apr 4',c:'C3',t:'basic',n:'Micro & Para',q:50,tgt:'≥68%',s:'Recalled + SuperExam'},
+    {d:'~Apr 13',c:'F1',t:'clinical',n:'IM (25) + Surgery (25)',q:50,tgt:'≥70%',s:'Endorsed Qs mixed'},
+    {d:'Apr 18',c:'C4',t:'basic',n:'Anatomy',q:50,tgt:'≥72%',s:'Recalled + Mehlman + SuperExam'},
+    {d:'~May 4',c:'F2',t:'clinical',n:'Pedia (25) + OB (25)',q:50,tgt:'≥70%',s:'Endorsed Qs mixed'},
+    {d:'May 4',c:'C5',t:'basic',n:'Preventive Med',q:50,tgt:'≥68%',s:'Recalled + SuperExam'},
+    {d:'May 11',c:'C6',t:'basic',n:'Pharmacology',q:50,tgt:'≥72%',s:'Recalled + Mehlman + SuperExam'},
+    {d:'May 26',c:'S1',t:'sim',n:'Practice Sim #1',q:100,tgt:'≥78%',s:'Endorsed + Recalled + SuperExam'},
+    {d:'May 27',c:'S2',t:'sim',n:'Practice Sim #2',q:100,tgt:'≥80%',s:'Endorsed + Recalled + SuperExam'},
+    {d:'May 28',c:'S3',t:'sim',n:'Practice Sim #3',q:100,tgt:'≥82%',s:'Endorsed + Recalled + SuperExam'},
+    {d:'Jun 1-7',c:'CE',t:'exam',n:'★ Comprehensive Exam',q:'300-500',tgt:'≥85%',s:'School Exam'}
+];
+
+function renderCPs(){
+    const c=document.getElementById('cpList');c.innerHTML='';
+    CPS.forEach(cp=>{
+        const tc=cp.t==='basic'?'rgba(192,132,252,.1);color:var(--purple)':cp.t==='clinical'?'rgba(96,165,250,.1);color:var(--blue)':cp.t==='sim'?'rgba(251,146,60,.1);color:var(--orange)':'rgba(248,113,113,.15);color:var(--red)';
+        const sv=LS.getItem('sc-'+cp.c)||'';
+        c.innerHTML+=`
+        <div class="card" style="display:flex;align-items:center;gap:10px;padding:10px 12px;${cp.t==='exam'?'border-left:3px solid var(--red);':''}" >
+            <div style="min-width:55px;font-size:11px;font-weight:700;color:var(--dim);">${cp.d}</div>
+            <span style="padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700;text-transform:uppercase;background:${tc};">${cp.c}</span>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;">${cp.n}</div><div style="font-size:9px;color:var(--dim);">${cp.q} Qs • ${cp.s}</div></div>
+            <div style="font-size:14px;font-weight:800;color:var(--green);min-width:45px;text-align:right;">${cp.tgt}</div>
+            <input class="input input-sm" type="text" value="${sv}" placeholder="__%" style="width:55px;text-align:center;font-weight:700;" onchange="LS.setItem('sc-${cp.c}',this.value)">
+        </div>`;
+    });
+}
+renderCPs();
+
+// ====== HISTORY / HEATMAP ======
+function renderHeat(){
+    const g=document.getElementById('heatmap');g.innerHTML='';
+    const hist=JSON.parse(LS.getItem('hist')||'{}');
+    const start=new Date('2026-02-25'),end=new Date('2026-06-21');
+    let tBlocks=0,tCards=0,tL2=0,bestStreak=0,curStreak=0;
+    
+    for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+        const ds=d.toISOString().split('T')[0];
+        const data=hist[ds];
+        let cls='hm-cell';
+        if(ds===DK)cls+=' hm-today';
+        if(data){
+            if(data.l>=4)cls+=' hm-l4';else if(data.l>=3)cls+=' hm-l3';else if(data.l>=2)cls+=' hm-l2';else if(data.l>=1)cls+=' hm-l1';
+            tBlocks+=(data.b||0);tCards+=(data.c||0);
+            if(data.l>=2){tL2++;curStreak++;}else curStreak=0;
+            bestStreak=Math.max(bestStreak,curStreak);
+        }else{curStreak=0;}
+        g.innerHTML+=`<div class="${cls}" title="${ds}">${d.getDate()}</div>`;
+    }
+    document.getElementById('hBlocks').textContent=tBlocks;
+    document.getElementById('hCards').textContent=tCards;
+    document.getElementById('hL2').textContent=tL2;
+    document.getElementById('hStreak').textContent=bestStreak;
+    document.getElementById('sBlocks').textContent=tBlocks;
+    document.getElementById('sCards').textContent=tCards;
+}
+renderHeat();
+</script>
 </body>
 </html>
